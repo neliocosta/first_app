@@ -5,21 +5,22 @@ Documento vivo. A especificação é iterada pelo **Gauntlet Loop**
 
 ## Versão atual
 
-- **v0** — `especificacao-v0.md` — rascunho inicial, ainda não submetido ao painel.
+- **v1** — `especificacao-v1.md` — pós-Rodada 1; endereça os 19 bloqueantes. Aguardando Rodada 2.
+- v0 — `especificacao-v0.md` — rascunho inicial (histórico).
 
-## Selo dos vereditos (última rodada)
+## Selo dos vereditos (Rodada 1, sobre a v0)
 
 | Especialista | Veredito |
 |---|---|
-| Cliente (Ricardo) | ⏳ pendente |
-| Psicólogo comportamental | ⏳ pendente |
-| Redator / conteúdo | ⏳ pendente |
-| Planejador CFP (Monique) | ⏳ pendente |
-| Engenheiro de software | ⏳ pendente |
+| Cliente (Ricardo) | ❌ NÃO SATISFEITO |
+| Psicólogo comportamental | ❌ NÃO SATISFEITO |
+| Redator / conteúdo | ❌ NÃO SATISFEITO |
+| Planejador CFP (Monique) | ❌ NÃO SATISFEITO |
+| Engenheiro de software | ❌ NÃO SATISFEITO |
 
 **Critério de parada:** 5/5 SATISFEITO, sem exigências Bloqueantes ou Importantes abertas,
 com a satisfação do Cliente como condição necessária.
 
 ## Histórico de rodadas
 
-- (nenhuma ainda) — ver `../gauntlet/` quando iniciarem.
+- **Rodada 1** (`../gauntlet/rodada-01.md`) — v0 → v1. 0/5 satisfeito; 19 bloqueantes endereçados.
