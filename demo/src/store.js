@@ -15,6 +15,9 @@ const seed = (clienteAtivoId = 'ricardo') => ({
   atorAtivo: 'cliente',
   clienteAtivoId,
 
+  // Fases (spec §2.2). 'montagem' é a etapa em que o consultor desenha o plano a partir
+  // da coleta — é ali que entram os insumos que ele levanta (ex.: alíquota de ITCMD do
+  // estado do cliente), e não na reunião com o cliente.
   fase: 'exame',
   telaCliente: 'inicio',
 

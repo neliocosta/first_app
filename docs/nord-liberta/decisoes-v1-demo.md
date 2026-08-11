@@ -64,3 +64,28 @@ Derivadas da estrutura do questionário (batem com as "6 regras" do contexto):
 ## Elaboração pendente
 - B2 (módulos da devolutiva) e B3 (verticais fundas).
 - Os 2 conflitos de design acima.
+
+
+---
+
+## Decisões da Rodada 5 (Nélio, 2026-08-11)
+
+**1. Avaliação da participação societária — não existe política.**
+A consultoria não avalia empresa. Se o cliente tem uma ideia do valuation, o dado entra; se não
+souber, **fica em branco**. Não é `⚠ LACUNA` esperando metodologia — é campo opcional por desenho.
+O plano trata empresa sem valor como **não estimada**, nunca como zero.
+
+**2. ITCMD por UF sai da coleta.**
+Não é pergunta de reunião. Na coleta fica apenas "em qual estado você mora?" (dado do cliente);
+a alíquota é levantada pelo consultor na **Montagem do Relatório**.
+
+**3. A ordem da coleta NÃO muda — o perfil fica no fim, de propósito.**
+O psicólogo propôs mover a seção 09 (perfil/suitability) para o começo, argumentando fadiga.
+**Rejeitado pelo Nélio, com razão metodológica:** quem preenche o perfil é o consultor, e para
+inferir o perfil ele precisa **ter tido a conversa inteira**. Perfil no início seria julgamento
+sem base. A crítica de fadiga permanece válida para os campos de *transcrição* (apólices,
+CNPJ de fundo, vesting) — não para o perfil.
+
+**4. Existe uma etapa não modelada: Montagem do Relatório.**
+Ver `fase-montagem-do-relatorio.md`. É onde o consultor desenha o plano depois da coleta e antes
+da devolutiva. Resolve o destino de vários itens que o painel pediu e que estavam sem lugar.
