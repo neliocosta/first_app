@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { OBJETIVOS, CICLO } from '../../data/demo.js';
+import { OBJETIVOS, CICLO, VAO_DE_RENDA, CONSULTOR } from '../../data/demo.js';
 import { consequenciaDoAporte, fraseDoCaminhoDeVolta } from '../../calculo.js';
 import { Icone, Badge, Card, Button } from '../../components/ui.jsx';
 
@@ -37,10 +37,14 @@ export default function MinhaJornada({ estado }) {
               style={{ background: aperto && o.id === 'aposentadoria' ? '#FA7A35' : '#2E9E5B' }} />
           ))}
         </div>
-        <p className="font-body text-sm text-ink-body leading-relaxed">
+        <p className="font-body text-sm text-ink-body leading-relaxed mb-3">
           {aperto
             ? 'A proteção da família ficou pronta antes do prazo. A aposentadoria recuou porque você guardou menos em alguns meses. Um compensa parte do outro — e há caminho de volta.'
-            : 'Seus aportes estão em dia e as tarefas dentro do prazo. O plano inteiro está de pé.'}
+            : 'Seus aportes estão em dia e as tarefas dentro do prazo.'}
+        </p>
+        <p className="font-body text-sm text-ink-body leading-relaxed px-4 py-3 rounded-btn bg-cream-100">
+          <strong className="text-navy-900">Uma peça ainda falta:</strong> entre {VAO_DE_RENDA.de} e {VAO_DE_RENDA.ate},
+          de onde vem a sua renda. {CONSULTOR.primeiroNome} fecha isso na montagem do plano.
         </p>
       </div>
 
@@ -51,7 +55,33 @@ export default function MinhaJornada({ estado }) {
           {OBJETIVOS.map((o) => {
             const recuado = aperto && o.id === 'aposentadoria';
             return (
-              <div key={o.id} className="relative">
+              <React.Fragment key={o.id}>
+              {/* O vão de renda: o plano pede aporte depois que a fonte do aporte acaba */}
+              {o.id === 'aposentadoria' && (
+                <div className="relative">
+                  <div className="absolute -left-7 top-5 w-[18px] h-[18px] rounded-full border-4 border-navy-950 bg-[#8A94A6]" />
+                  <div className="rounded-card bg-white/[0.07] border border-dashed border-white/25 p-5">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="font-display font-semibold text-white">
+                        De {VAO_DE_RENDA.de} a {VAO_DE_RENDA.ate}
+                      </h3>
+                      <Badge status="lacuna">a definir</Badge>
+                    </div>
+                    <p className="font-display text-white text-lg mb-3">{VAO_DE_RENDA.pergunta}</p>
+                    <p className="font-body text-sm text-white/70 leading-relaxed mb-3">
+                      Você vende a ótica em {VAO_DE_RENDA.de} e pretende parar em {VAO_DE_RENDA.ate}.
+                      Nesses {VAO_DE_RENDA.anos} anos, os {brl(VAO_DE_RENDA.rendaQueAcaba)}/mês que hoje vêm
+                      da empresa não vêm mais — e o plano continua contando com {brl(VAO_DE_RENDA.aporteQueContinua)}/mês
+                      de aporte, além do seu custo de vida de {brl(VAO_DE_RENDA.custoDeVida)}/mês.
+                    </p>
+                    <p className="font-ui text-xs text-white/55 leading-relaxed">
+                      {CONSULTOR.primeiroNome} responde isso ao montar o seu plano — depende de como a venda for feita.
+                      Enquanto estiver em aberto, a data de {VAO_DE_RENDA.ate} está apoiada numa renda que já terminou.
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="relative">
                 <div className="absolute -left-7 top-5 w-[18px] h-[18px] rounded-full border-4 border-navy-950"
                   style={{ background: recuado ? '#FA7A35' : o.tipo === 'evento' ? '#20344C' : '#2E9E5B' }} />
                 <Card className="!p-5">
@@ -62,12 +92,12 @@ export default function MinhaJornada({ estado }) {
                   <p className="font-display text-orange-700 text-lg mb-2">
                     {recuado ? `${o.prazo} + ${cons.mesesAtraso} ${cons.mesesAtraso === 1 ? 'mês' : 'meses'}` : o.prazo}
                   </p>
-                  <p className="font-body text-sm text-ink-body leading-relaxed">{o.detalhe}</p>
+                  <p className="font-body text-sm text-ink-body leading-relaxed">{o.detalhe.replace('{consultor}', CONSULTOR.primeiroNome)}</p>
 
                   {o.tipo === 'evento' && (
                     <div className="mt-3 px-4 py-3 rounded-btn bg-peach-100">
                       <p className="font-ui text-xs text-orange-700 leading-relaxed">
-                        Liquidez estimada de {brl(o.liquidezEstimada)} entra no plano e antecipa a data da aposentadoria.
+                        Liquidez estimada de {brl(o.liquidezEstimada)} entra no plano.
                       </p>
                     </div>
                   )}
@@ -83,6 +113,7 @@ export default function MinhaJornada({ estado }) {
                   )}
                 </Card>
               </div>
+              </React.Fragment>
             );
           })}
         </div>

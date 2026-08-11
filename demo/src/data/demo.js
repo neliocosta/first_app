@@ -75,7 +75,12 @@ export const MODULOS = [
       {
         titulo: 'Hoje, sem a sua renda, sua família mantém o padrão de vida por 11 meses',
         valor: '11 meses',
-        comoChegamos: 'Reserva de R$ 180.000 (você nos contou) ÷ custo de vida de R$ 16.000/mês (você nos contou).',
+        comoChegamos: 'Reserva de R$ 180.000 ÷ custo de vida de R$ 16.000/mês (os dois você nos contou). ' +
+          'Esta conta usa SÓ o que vira dinheiro no mês seguinte. Ficam de fora, de propósito: a rede de óticas ' +
+          '(R$ 2,4 mi — sem você à frente, pode não valer isso, e vender leva meses ou anos) e os imóveis ' +
+          '(R$ 1,75 mi — não pagam supermercado em março). E há R$ 320.000 de financiamentos que a sua família ' +
+          'herda junto. Por isso o seu patrimônio é de R$ 4,81 milhões e a autonomia dela é de 11 meses: ' +
+          'são duas perguntas diferentes — quanto você tem, e do que ela vive amanhã.',
         prov: 'estimado',
       },
       {
@@ -124,6 +129,9 @@ export const MODULOS = [
   {
     id: 'tributario',
     vertical: VERTICAIS.TRIBUTARIO,
+    // Prescreve um veiculo de investimento (PGBL) -> so publica com perfil preenchido.
+    // CFP R4/R5: "recomendar produto antes de saber quem o cliente e" fere o dever fiduciario.
+    exigeSuitability: true,
     titulo: 'O que vaza em imposto',
     subtitulo: 'Dinheiro que sai sem precisar sair',
     icone: 'receipt',
@@ -276,7 +284,7 @@ export const OBJETIVOS = [
   {
     id: 'otica', nome: 'Vender a ótica com tranquilidade', vertical: 'sucessorio',
     tipo: 'evento', prazo: '2036, aos 64', anoAlvo: 2036, estado: 'noRumo',
-    detalhe: 'Maior evento financeiro da sua vida. A liquidez da venda entra no plano e antecipa a data da aposentadoria.',
+    detalhe: 'Maior evento financeiro da sua vida. O que a venda faz com a data da aposentadoria depende de por quanto você vender e do imposto sobre o ganho — {consultor} fecha isso na montagem do plano.',
     liquidezEstimada: 2400000,
   },
   {
@@ -285,6 +293,22 @@ export const OBJETIVOS = [
     detalhe: 'Aporte combinado de R$ 10.000/mês.',
   },
 ];
+
+/**
+ * O vão de renda (Cliente R4): ele vende a ótica em 2036 e pretende parar em 2041.
+ * A fonte dos R$ 38.000/mês acaba na venda, mas o plano segue pedindo R$ 10.000/mês
+ * de aporte por mais 5 anos. Nenhuma tela olhava para isso.
+ */
+export const VAO_DE_RENDA = {
+  de: 2036, ate: 2041, anos: 5,
+  rendaQueAcaba: 38000,
+  aporteQueContinua: 10000,
+  custoDeVida: 16000,
+  pergunta: 'De onde vem sua renda nesses 5 anos?',
+  status: 'aberto',
+  nota: 'A resposta é do consultor, na montagem do plano — e depende do formato da venda. ' +
+        'Enquanto estiver em aberto, a data de 2041 está apoiada numa renda que não existe mais.',
+};
 
 /** Plano de ação instanciado (spec §6.6). */
 export const PLANO_ACAO = MODULOS

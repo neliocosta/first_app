@@ -22,11 +22,13 @@ const fmt = (v, campo) => {
   return String(v);
 };
 
-export default function Coleta() {
+export default function Coleta({ estado, acoes }) {
   const [aberta, setAberta] = useState('s01');
 
   const suit = camposSuitability();
-  const suitPreenchido = false; // ILUSTRATIVO: o Ricardo ainda não passou pelo instrumento
+  // Derivado do estado, nunca hardcoded (CFP + engenheiro R5: banner que afirma
+  // um controle que nao opera e pior que a omissao).
+  const suitPreenchido = !!estado?.perfilSuitability;
 
   return (
     <>
@@ -41,17 +43,39 @@ export default function Coleta() {
         {' '}Você não repergunta — você expande.
       </p>
 
-      {/* Trava fiduciária: suitability é pré-condição de tarefa de investimento */}
-      {!suitPreenchido && (
-        <div className="rounded-card bg-peach-100 border border-orange-700/25 p-5 mb-6 flex gap-3">
-          <Icone nome="lock" size={18} className="text-orange-700 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-display font-semibold text-navy-900 mb-1">Perfil de risco ainda não preenchido</p>
-            <p className="font-body text-sm text-ink-body leading-relaxed">
-              Enquanto os {suit.length} campos de perfil (seção 09) estiverem vazios, nenhuma tarefa de
-              produto de investimento é publicada para o cliente — e este cliente aparece no seu radar.
-            </p>
+      {/* Trava fiduciária — agora opera: modulosPublicaveis() filtra de fato */}
+      {!suitPreenchido ? (
+        <div className="rounded-card bg-peach-100 border border-orange-700/25 p-5 mb-6">
+          <div className="flex gap-3 mb-4">
+            <Icone nome="lock" size={18} className="text-orange-700 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-display font-semibold text-navy-900 mb-1">Perfil de risco ainda não preenchido</p>
+              <p className="font-body text-sm text-ink-body leading-relaxed">
+                Os {suit.length} campos de perfil (seção 09) estão vazios. Enquanto isso,
+                <strong className="text-navy-900"> o capítulo "O que vaza em imposto" não é publicado</strong> —
+                ele prescreve um PGBL, que é produto de investimento. O cliente não vê a tarefa.
+              </p>
+            </div>
           </div>
+          <div className="flex flex-wrap items-center gap-2 pl-8">
+            <span className="font-ui text-xs text-ink-body">Definir perfil:</span>
+            {['Conservador', 'Moderado', 'Arrojado'].map((perfil) => (
+              <button key={perfil} onClick={() => acoes.definirPerfilSuitability(perfil)}
+                className="px-4 py-2 min-h-[44px] rounded-full border border-orange-700 text-orange-700 font-ui text-sm hover:bg-orange-700 hover:text-white transition-colors">
+                {perfil}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-card bg-white shadow-card p-5 mb-6 flex items-center gap-3">
+          <Icone nome="check" size={18} className="text-[#1F7A45] shrink-0" />
+          <p className="font-body text-sm text-ink-body flex-1">
+            Perfil <strong className="text-navy-900">{estado.perfilSuitability}</strong> registrado.
+            Os capítulos que dependem dele já podem ser publicados.
+          </p>
+          <button onClick={() => acoes.definirPerfilSuitability(null)}
+            className="font-ui text-xs text-orange-700 min-h-[44px] underline underline-offset-2">limpar</button>
         </div>
       )}
 

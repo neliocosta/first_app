@@ -43,6 +43,9 @@ const seed = (clienteAtivoId = 'ricardo') => ({
   querFalarComite: false,
   conceitos: CONCEITOS.reduce((acc, c) => ({ ...acc, [c.id]: c.dominado }), {}),
   sugestoes: [],
+  // Instrumento de suitability (coleta §09). Enquanto null, modulo que prescreve
+  // produto de investimento NAO e publicado — trava em codigo, nao em banner.
+  perfilSuitability: null,
   auditLog: [],
 });
 
@@ -130,6 +133,9 @@ export function useEstado() {
       }), { entidade: 'modulo', entidadeId: moduloId, acao: 'alternar' }),
     publicarDevolutiva: () =>
       aplicar({ atorAtivo: 'cliente' }, { entidade: 'devolutiva', acao: 'publicar' }),
+    definirPerfilSuitability: (perfil) =>
+      aplicar({ perfilSuitability: perfil },
+        { entidade: 'suitability', depois: perfil, acao: 'preencher' }),
     resolverSugestao: (chave, status) =>
       aplicar((e) => ({ sugestoes: e.sugestoes.map((s) => (s.chave === chave ? { ...s, status } : s)) }),
         { entidade: 'sugestao', entidadeId: chave, depois: status, acao: 'resolver' }),
@@ -150,6 +156,27 @@ export function useEstado() {
   }, [aplicar]);
 
   return { estado, acoesCliente, acoesConsultor, trocarAtor, reiniciar, pularParaDevolutiva, erroPersistencia };
+}
+
+/* ── Seletores da trava fiduciária ────────────────────────────────────────── */
+
+/** Um módulo que prescreve produto de investimento só existe com perfil preenchido. */
+export function modulosPublicaveis(estado) {
+  return MODULOS.filter((m) =>
+    estado.modulosLigados.includes(m.id) &&
+    (!m.exigeSuitability || !!estado.perfilSuitability));
+}
+
+/** Módulos ligados pelo consultor mas barrados pela trava — com o motivo. */
+export function modulosBloqueados(estado) {
+  return MODULOS.filter((m) =>
+    estado.modulosLigados.includes(m.id) && m.exigeSuitability && !estado.perfilSuitability);
+}
+
+/** Tarefas que o cliente pode ver: as dos módulos publicáveis. */
+export function tarefasPublicaveis(estado) {
+  const ids = new Set(modulosPublicaveis(estado).map((m) => m.id));
+  return estado.tarefas.filter((t) => ids.has(t.moduloId));
 }
 
 /** Limpeza de emergência usada pelo ErrorBoundary (fora da árvore React). */

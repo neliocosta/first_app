@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MODULOS, CONSULTOR, OBJETIVOS, CASCATA_PADRAO } from '../../data/demo.js';
+import { CONSULTOR, OBJETIVOS, CASCATA_PADRAO } from '../../data/demo.js';
+import { modulosPublicaveis, tarefasPublicaveis } from '../../store.js';
 import { Button, Icone, Badge, BarraProgresso } from '../../components/ui.jsx';
 
 const PROV_ROTULO = { declarado: 'você nos contou', estimado: 'nossa estimativa', validado: 'confirmado' };
@@ -180,7 +181,7 @@ function PassoTarefas({ m, avancar, ultimo, decisao, tarefas, definirQuando }) {
 /* ── Capítulo final · Seu plano de ação ───────────────────────────────────── */
 function PlanoDeAcao({ estado, acoes, modulos }) {
   const [cascata, setCascata] = useState(estado.cascata || CASCATA_PADRAO);
-  const tarefas = estado.tarefas.filter((t) => modulos.some((m) => m.id === t.moduloId));
+  const tarefas = tarefasPublicaveis(estado);
   const meses = [...new Set(tarefas.map((t) => t.mes))].sort((a, b) => a - b);
   const nomeObj = (id) => OBJETIVOS.find((o) => o.id === id)?.nome || id;
 
@@ -248,7 +249,7 @@ function PlanoDeAcao({ estado, acoes, modulos }) {
 
 /* ── Orquestrador — identidade por ID, respeitando os módulos ligados ─────── */
 export default function Devolutiva({ estado, acoes }) {
-  const modulos = MODULOS.filter((m) => estado.modulosLigados.includes(m.id));
+  const modulos = modulosPublicaveis(estado);   // a trava de suitability age aqui
   const idx = Math.max(0, modulos.findIndex((m) => m.id === estado.capituloAtualId));
   const m = modulos[idx];
   const { passoCapitulo, noPlano } = estado;

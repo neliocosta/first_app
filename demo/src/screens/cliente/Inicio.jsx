@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RICARDO, OBJETIVOS, CICLO, CONSULTOR, WHATSAPP, QUIZ_EXEMPLO } from '../../data/demo.js';
 import { consequenciaDoAporte, fraseDoCaminhoDeVolta, brl } from '../../calculo.js';
+import { tarefasPublicaveis } from '../../store.js';
 import { Button, Icone, Badge, Card, InputMoedaChips } from '../../components/ui.jsx';
 
 const MES_ATUAL = 1;
@@ -55,12 +56,13 @@ export default function Inicio({ estado, acoes }) {
   const aposentadoria = OBJETIVOS.find((o) => o.id === 'aposentadoria') || OBJETIVOS[OBJETIVOS.length - 1];
 
   // C2 — o ciclo é do MÊS e precisa poder fechar
-  const tarefasDoMes = estado.tarefas.filter((t) => t.mes === MES_ATUAL);
+  const visiveis = tarefasPublicaveis(estado);
+  const tarefasDoMes = visiveis.filter((t) => t.mes === MES_ATUAL);
   const feitasDoMes = tarefasDoMes.filter((t) => t.feita).length;
-  const feitasTotal = estado.tarefas.filter((t) => t.feita).length;
+  const feitasTotal = visiveis.filter((t) => t.feita).length;
 
   // Barra do herói derivada do progresso real (antes: width:'50%' fixo)
-  const tarefasDoObjetivo = estado.tarefas.filter((t) => t.moduloId === 'protecao');
+  const tarefasDoObjetivo = visiveis.filter((t) => t.moduloId === 'protecao');
   const pctHeroi = tarefasDoObjetivo.length
     ? Math.round((tarefasDoObjetivo.filter((t) => t.feita).length / tarefasDoObjetivo.length) * 100) : 0;
 
@@ -147,7 +149,7 @@ export default function Inicio({ estado, acoes }) {
           ))}
         </div>
         <p className="mt-4 font-ui text-[11px] text-ink-body">
-          {feitasTotal} de {estado.tarefas.length} tarefas do plano inteiro já concluídas.
+          {feitasTotal} de {visiveis.length} tarefas do plano inteiro já concluídas.
         </p>
         <button onClick={() => setZap(true)}
           className="mt-2 font-ui text-xs text-orange-700 inline-flex items-center gap-1.5 min-h-[44px] underline underline-offset-2">

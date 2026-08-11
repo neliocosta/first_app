@@ -1,9 +1,11 @@
 import React from 'react';
 import { MODULOS, VERTICAIS, CICLO } from '../../data/demo.js';
+import { tarefasPublicaveis } from '../../store.js';
 import { Icone, Badge, Card } from '../../components/ui.jsx';
 
 export default function Plano({ estado, acoes }) {
-  const feitas = estado.tarefas.filter((t) => t.feita).length;
+  const visiveis = tarefasPublicaveis(estado);
+  const feitas = visiveis.filter((t) => t.feita).length;
   const aderencia = estado.aporteInformado === null ? null
     : Math.min(100, Math.round((estado.aporteInformado / CICLO.aporteCombinado) * 100));
 
@@ -26,7 +28,7 @@ export default function Plano({ estado, acoes }) {
         <p className="font-ui text-ink-body text-xs uppercase tracking-wide mb-3">No rumo do seu plano</p>
         <div className="flex items-end gap-6">
           <div>
-            <p className="font-display font-bold text-navy-900 text-3xl">{feitas}<span className="text-ink-body text-xl">/{estado.tarefas.length}</span></p>
+            <p className="font-display font-bold text-navy-900 text-3xl">{feitas}<span className="text-ink-body text-xl">/{visiveis.length}</span></p>
             <p className="font-ui text-xs text-ink-body mt-1">tarefas concluídas</p>
           </div>
           <div>
@@ -61,7 +63,7 @@ export default function Plano({ estado, acoes }) {
           ) : (
             <div className="space-y-2.5">
               {v.projetos.map((p) => {
-                const tarefas = estado.tarefas.filter((t) => t.moduloId === p.id);
+                const tarefas = visiveis.filter((t) => t.moduloId === p.id);
                 const resolvido = tarefas.length > 0 && tarefas.every((t) => t.feita);
                 return (
                   <div key={p.id} className="flex items-start gap-3">

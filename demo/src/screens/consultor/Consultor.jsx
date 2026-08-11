@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RICARDO, MODULOS, CONSULTOR, VERTICAIS } from '../../data/demo.js';
+import { modulosBloqueados } from '../../store.js';
 import { Marca, Icone, Badge, Button } from '../../components/ui.jsx';
 import Coleta from './Coleta.jsx';
 
@@ -82,7 +83,7 @@ export default function Consultor({ estado, acoes }) {
           </>
         )}
 
-        {aba === 'coleta' && <Coleta />}
+        {aba === 'coleta' && <Coleta estado={estado} acoes={acoes} />}
 
         {aba === 'devolutiva' && (
           <>
@@ -91,9 +92,21 @@ export default function Consultor({ estado, acoes }) {
               Cliente: <strong className="text-navy-900">{RICARDO.nomeCompleto}</strong> · o motor pré-selecionou
               a proposta a partir da coleta e do desempenho no quiz. Você revisa e ajusta.
             </p>
+            {modulosBloqueados(estado).length > 0 && (
+              <div className="rounded-card bg-peach-100 border border-orange-700/25 p-4 mb-4 flex gap-3">
+                <Icone nome="lock" size={16} className="text-orange-700 shrink-0 mt-0.5" />
+                <p className="font-body text-sm text-ink-body leading-relaxed">
+                  {modulosBloqueados(estado).length} capítulo prescreve produto de investimento e não
+                  será publicado enquanto o perfil do cliente estiver vazio.
+                  <strong className="text-navy-900"> Preencha na aba Coleta.</strong>
+                </p>
+              </div>
+            )}
             <div className="space-y-3">
-              {MODULOS.map((m) => (
-                <div key={m.id} className="bg-white rounded-card shadow-card p-5 flex items-center gap-4">
+              {MODULOS.map((m) => {
+                const barrado = modulosBloqueados(estado).some((b) => b.id === m.id);
+                return (
+                <div key={m.id} className={`bg-white rounded-card shadow-card p-5 flex items-center gap-4 ${barrado ? 'ring-1 ring-orange-700/30' : ''}`}>
                   <Icone nome={m.icone} size={20} className="text-navy-900 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="font-display font-semibold text-navy-900">{m.titulo}</p>
@@ -104,7 +117,7 @@ export default function Consultor({ estado, acoes }) {
                       <p className="font-ui text-[11px] text-orange-700 mt-1">números e decisão editáveis antes de publicar</p>
                     )}
                   </div>
-                  <Badge status="good">elegível</Badge>
+                  <Badge status={barrado ? 'medium' : 'good'}>{barrado ? 'barrado: falta perfil' : 'elegível'}</Badge>
                   <button onClick={() => toggle(m.id)}
                     className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full hover:bg-cream-100"
                     aria-label={`${ligados.includes(m.id) ? 'Desligar' : 'Ligar'} o capítulo ${m.titulo}`}>
@@ -113,7 +126,7 @@ export default function Consultor({ estado, acoes }) {
                     </span>
                   </button>
                 </div>
-              ))}
+              );})}
               <div className="bg-white rounded-card shadow-card p-5 flex items-center gap-4 opacity-60">
                 <Icone nome="trending-up" size={20} className="text-navy-900 shrink-0" />
                 <div className="flex-1">
