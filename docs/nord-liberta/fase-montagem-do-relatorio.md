@@ -48,16 +48,39 @@ Itens que o painel pediu e que estavam sem lugar — agora têm:
 - **Necessidade de proteção** — a coleta pega coberturas e dependentes; o cálculo do capital
   segurado necessário é trabalho de montagem.
 
-## Perguntas em aberto (para o Nélio)
+## Respondido pelo Nélio (2026-08-11)
 
-1. A montagem é **uma tela só** ou uma sequência por vertical?
-2. O consultor monta **do zero** ou o sistema pré-propõe (como o motor de elegibilidade já faz com
-   os módulos) e ele ajusta?
-3. O relatório montado é um **artefato exportável** (PDF que o cliente recebe) além de virar a
-   devolutiva na plataforma?
-4. Existe revisão/aprovação por outro consultor ou pelo admin antes de publicar?
-5. Que parte da montagem o cliente chega a ver? (a spec diz que a prévia do reexame é só do
-   consultor — vale o mesmo para as premissas?)
+> **Status: não construir agora.** O Nélio vai passar as specs completas desta tela.
+> O que está abaixo é o que já foi decidido; o resto aguarda.
+
+**1. Formato — uma tela só.** Não é uma sequência por vertical.
+
+**2. O consultor monta do zero, com auxílio de calculadoras do sistema.**
+Diferente da devolutiva (onde o motor de elegibilidade pré-sugere a playlist e o consultor revisa),
+aqui a autoria é dele. O sistema entra como **ferramenta de cálculo**, não como proponente.
+→ As "11 calculadoras" do site atual (contexto §1) provavelmente vivem aqui.
+
+**3. O relatório deixa de ser PDF e passa a viver na devolutiva.**
+Hoje o entregável é um `.pdf`; a intenção é que fique **só na área logada, na tela de devolutiva**.
+⚠ **Implicação a rastrear:** isso significa que a devolutiva não é um resumo do relatório — ela
+**é** o relatório. Tudo o que hoje o PDF carrega precisa caber na estrutura de capítulos
+(conceito → números → decisão → tarefas), ou a migração perde conteúdo. Vale conferir com um
+PDF real antes de fechar a spec da devolutiva.
+
+**4. Não existe revisão hoje — mas passa a existir: campo "Auditado por:".**
+Sugestão do painel (Monique, R4: *"retirar meu nome e meu CFP® de qualquer conteúdo que eu não
+pude editar"*) aceita pelo Nélio. Registra quem auditou o relatório antes de publicar.
+
+**5. O cliente não vê nada da montagem.**
+Ele participa da **coleta** e acessa o **material de apresentação da consultoria** — a montagem é
+o consultor sozinho. Confirma a regra de visibilidade da spec §3.4.
+
+## Ainda em aberto
+
+- O **"material de apresentação da consultoria"** citado em (5) é um artefato que não está
+  modelado em lugar nenhum. O que é, quem produz, onde o cliente acessa?
+- Quais são as **calculadoras** que a tela oferece (as 11 do site atual? outras?).
+- O campo "Auditado por:" é opcional ou trava a publicação?
 
 ## Impacto no que já está construído
 
