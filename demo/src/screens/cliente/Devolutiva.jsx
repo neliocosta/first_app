@@ -9,13 +9,22 @@ const PROV_ROTULO = { declarado: 'você nos contou', estimado: 'nossa estimativa
 function PassoConceito({ m, avancar }) {
   return (
     <>
-      <div className="rounded-module overflow-hidden shadow-float mb-6 bg-black aspect-video">
-        <iframe className="w-full h-full" loading="lazy"
-          src={`https://www.youtube-nocookie.com/embed/${m.video}`}
-          referrerPolicy="strict-origin-when-cross-origin"
-          title={m.titulo} allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
-          allowFullScreen />
-      </div>
+      {/* No build para artifact a CSP bloqueia terceiros — cai num placeholder da marca. */}
+      {import.meta.env.VITE_SEM_VIDEO ? (
+        <div className="rounded-module overflow-hidden shadow-float mb-6 aspect-video flex flex-col items-center justify-center gap-3"
+             style={{ background: 'linear-gradient(135deg, #20344C 55%, #FA7A35 175%)' }}>
+          <Icone nome="play" size={34} className="text-white/85" />
+          <p className="font-ui text-xs text-white/70">vídeo do conceito · {CONSULTOR.primeiroNome}</p>
+        </div>
+      ) : (
+        <div className="rounded-module overflow-hidden shadow-float mb-6 bg-black aspect-video">
+          <iframe className="w-full h-full" loading="lazy"
+            src={`https://www.youtube-nocookie.com/embed/${m.video}`}
+            referrerPolicy="strict-origin-when-cross-origin"
+            title={m.titulo} allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+            allowFullScreen />
+        </div>
+      )}
       <p className="font-ui text-white/60 text-xs mb-2">{CONSULTOR.nome} explica</p>
       <h1 className="font-display font-semibold text-white text-2xl leading-snug mb-4">{m.titulo}</h1>
       <p className="font-body text-white/80 text-lg leading-relaxed mb-8">{m.conceito}</p>
