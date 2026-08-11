@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RICARDO, MODULOS, CONSULTOR, VERTICAIS } from '../../data/demo.js';
 import { Marca, Icone, Badge, Button } from '../../components/ui.jsx';
+import Coleta from './Coleta.jsx';
 
 const RADAR = [
   { cliente: 'Ricardo Almeida', motivo: 'Sugestão de correção pendente', idade: '2 dias', sev: 'medium', sla: '3 dias' },
@@ -22,7 +23,8 @@ export default function Consultor({ estado, acoes }) {
       <aside className="w-[240px] shrink-0 bg-navy-900 min-h-screen fixed top-11 bottom-0 left-0 py-6 px-4 hidden md:block">
         <div className="px-2 mb-8"><Marca size={22} invertido /></div>
         <nav className="space-y-1">
-          {[{ id: 'radar', label: 'Radar', icone: 'bell' }, { id: 'devolutiva', label: 'Montar devolutiva', icone: 'folder' },
+          {[{ id: 'radar', label: 'Radar', icone: 'bell' }, { id: 'coleta', label: 'Coleta', icone: 'file-text' },
+            { id: 'devolutiva', label: 'Montar devolutiva', icone: 'folder' },
             { id: 'clientes', label: 'Clientes', icone: 'users' }].map((i) => (
             <button key={i.id} onClick={() => setAba(i.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-btn font-ui text-sm transition-colors
@@ -36,7 +38,7 @@ export default function Consultor({ estado, acoes }) {
 
       <main className="flex-1 md:ml-[240px] p-6 md:p-10 max-w-5xl">
         <div className="flex gap-2 md:hidden mb-6">
-          {['radar', 'devolutiva', 'clientes'].map((a) => (
+          {['radar', 'coleta', 'devolutiva', 'clientes'].map((a) => (
             <button key={a} onClick={() => setAba(a)}
               className={`px-4 py-2 rounded-full font-ui text-xs capitalize min-h-[44px] ${aba === a ? 'bg-orange-700 text-white' : 'bg-white border border-ink-line text-navy-900'}`}>{a}</button>
           ))}
@@ -79,6 +81,8 @@ export default function Consultor({ estado, acoes }) {
             </p>
           </>
         )}
+
+        {aba === 'coleta' && <Coleta />}
 
         {aba === 'devolutiva' && (
           <>
