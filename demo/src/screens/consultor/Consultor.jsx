@@ -11,11 +11,10 @@ const RADAR = [
   { cliente: 'Beatriz Alves', motivo: 'Divergência no reexame (campos-âncora)', idade: '1 dia', sev: 'medium', sla: '5 dias' },
 ];
 
-export default function Consultor({ estado, set }) {
+export default function Consultor({ estado, acoes }) {
   const [aba, setAba] = useState('radar');
-  const [ligados, setLigados] = useState(MODULOS.map((m) => m.id));
-
-  const toggle = (id) => setLigados(ligados.includes(id) ? ligados.filter((x) => x !== id) : [...ligados, id]);
+  const ligados = estado.modulosLigados;   // engenheiro R4: agora chega ao cliente de verdade
+  const toggle = (id) => acoes.alternarModulo(id);
 
   return (
     <div className="min-h-screen bg-cream-50 pt-11 flex">
@@ -27,7 +26,7 @@ export default function Consultor({ estado, set }) {
             { id: 'clientes', label: 'Clientes', icone: 'users' }].map((i) => (
             <button key={i.id} onClick={() => setAba(i.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-btn font-ui text-sm transition-colors
-                ${aba === i.id ? 'bg-orange-500 text-white' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+                ${aba === i.id ? 'bg-orange-700 text-white' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
               <Icone nome={i.icone} size={17} /> {i.label}
             </button>
           ))}
@@ -37,9 +36,9 @@ export default function Consultor({ estado, set }) {
 
       <main className="flex-1 md:ml-[240px] p-6 md:p-10 max-w-5xl">
         <div className="flex gap-2 md:hidden mb-6">
-          {['radar', 'devolutiva'].map((a) => (
+          {['radar', 'devolutiva', 'clientes'].map((a) => (
             <button key={a} onClick={() => setAba(a)}
-              className={`px-4 py-2 rounded-full font-ui text-xs capitalize ${aba === a ? 'bg-orange-500 text-white' : 'bg-white border border-ink-line text-navy-900'}`}>{a}</button>
+              className={`px-4 py-2 rounded-full font-ui text-xs capitalize min-h-[44px] ${aba === a ? 'bg-orange-700 text-white' : 'bg-white border border-ink-line text-navy-900'}`}>{a}</button>
           ))}
         </div>
 
@@ -50,7 +49,7 @@ export default function Consultor({ estado, set }) {
               Fila de triagem ordenada por severidade × tempo. Capacidade: 150 clientes ·
               teto diário de 12 itens. <span className="text-[#8A94A6] italic">valores de exemplo</span>
             </p>
-            <div className="bg-white rounded-card shadow-card overflow-hidden">
+            <div className="bg-white rounded-card shadow-card overflow-hidden overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-navy-900 text-white font-display text-xs">
@@ -86,7 +85,7 @@ export default function Consultor({ estado, set }) {
             <h1 className="font-display font-semibold text-navy-900 text-3xl mb-2">Montar devolutiva</h1>
             <p className="font-body text-ink-body mb-8">
               Cliente: <strong className="text-navy-900">{RICARDO.nomeCompleto}</strong> · o motor pré-selecionou
-              a playlist a partir da coleta e do desempenho no quiz. Você só revisa.
+              a proposta a partir da coleta e do desempenho no quiz. Você revisa e ajusta.
             </p>
             <div className="space-y-3">
               {MODULOS.map((m) => (
@@ -97,12 +96,17 @@ export default function Consultor({ estado, set }) {
                     <p className="font-body text-xs text-ink-body mt-0.5">
                       {m.vertical?.nome || 'Transversal'} · {m.tarefas.length} {m.tarefas.length === 1 ? 'tarefa' : 'tarefas'}
                     </p>
+                    {m.decisaoComoChegamos && (
+                      <p className="font-ui text-[11px] text-orange-700 mt-1">números e decisão editáveis antes de publicar</p>
+                    )}
                   </div>
                   <Badge status="good">elegível</Badge>
                   <button onClick={() => toggle(m.id)}
-                    className={`w-12 h-7 rounded-full transition-colors relative shrink-0 ${ligados.includes(m.id) ? 'bg-orange-500' : 'bg-ink-line'}`}
-                    aria-label={ligados.includes(m.id) ? 'desligar' : 'ligar'}>
-                    <span className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-[left] ${ligados.includes(m.id) ? 'left-6' : 'left-1'}`} />
+                    className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full hover:bg-cream-100"
+                    aria-label={`${ligados.includes(m.id) ? 'Desligar' : 'Ligar'} o capítulo ${m.titulo}`}>
+                    <span className={`w-12 h-7 rounded-full transition-colors relative block ${ligados.includes(m.id) ? 'bg-orange-700' : 'bg-ink-line'}`}>
+                      <span className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-[left] ${ligados.includes(m.id) ? 'left-6' : 'left-1'}`} />
+                    </span>
                   </button>
                 </div>
               ))}
@@ -116,7 +120,7 @@ export default function Consultor({ estado, set }) {
               </div>
             </div>
             <div className="mt-8 flex items-center gap-3">
-              <Button onClick={() => set({ atorAtivo: 'cliente' })}>Publicar devolutiva</Button>
+              <Button onClick={acoes.publicarDevolutiva}>Publicar devolutiva</Button>
               <span className="font-ui text-xs text-ink-body">{ligados.length} capítulos ligados</span>
             </div>
           </>

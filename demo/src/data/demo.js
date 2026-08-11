@@ -37,12 +37,14 @@ export const RICARDO = {
     valorBens:           { valor: 1750000, prov: 'estimado',  rotulo: 'Valor dos bens' },
     saldoDevedor:        { valor: 320000,  prov: 'declarado', rotulo: 'Saldo devedor (financiamentos)' },
     valorOtica:          { valor: 2400000, prov: 'estimado',  rotulo: 'Valor estimado da rede de óticas' },
+    // C8: entra no patrimônio consolidado (Cliente + CFP R4)
     coberturaVida:       { valor: 0,       prov: 'declarado', rotulo: 'Cobertura de seguro de vida' },
-    horizonteFilhos:     { valor: 8,       prov: 'declarado', rotulo: 'Anos até o filho mais novo se formar' },
-    idadeAposentadoria:  { valor: 69,      prov: 'declarado', rotulo: 'Idade em que pretende parar' },
-    testamento:          { valor: null,    prov: null,        rotulo: 'Testamento / holding' },
-    regimeBens:          { valor: 'Comunhão parcial', prov: 'declarado', rotulo: 'Regime de bens' },
-    perfilSuitability:   { valor: null,    prov: null,        rotulo: 'Perfil de suitability' },
+    horizonteFilhos:     { valor: 8,  unidade: 'anos', prov: 'declarado', rotulo: 'Anos até o filho mais novo se formar' },
+    idadeAposentadoria:  { valor: 69, unidade: 'anos', prov: 'declarado', rotulo: 'Idade em que pretende parar de trabalhar' },
+    // CFP R4: campos NUNCA perguntados no exame não podem ser exibidos como declaração do cliente
+    testamento:          { valor: null, prov: null, naoColetado: true, rotulo: 'Testamento / holding' },
+    regimeBens:          { valor: null, prov: null, naoColetado: true, rotulo: 'Regime de bens' },
+    perfilSuitability:   { valor: null, prov: null, naoColetado: true, soConsultor: true, rotulo: 'Seu perfil de investidor' },
     previdenciaPrivada:  { valor: 0,       prov: 'declarado', rotulo: 'Previdência privada' },
   },
   aporteCombinado: 10000,
@@ -71,20 +73,21 @@ export const MODULOS = [
     conceito: 'Um seguro de vida não é sobre você — é sobre quem fica. Ele compra tempo para a sua família decidir sem pressa.',
     cards: [
       {
-        titulo: 'Hoje sua família mantém o padrão por 11 meses',
+        titulo: 'Hoje, sem a sua renda, sua família mantém o padrão de vida por 11 meses',
         valor: '11 meses',
         comoChegamos: 'Reserva de R$ 180.000 (você nos contou) ÷ custo de vida de R$ 16.000/mês (você nos contou).',
         prov: 'estimado',
       },
       {
-        titulo: 'A necessidade é de 8 anos de autonomia',
+        titulo: 'Sua família precisa de 8 anos mantendo o padrão de vida sem a sua renda',
         valor: '8 anos',
-        comoChegamos: 'Horizonte até o seu filho mais novo se formar (você nos contou).',
-        prov: 'declarado',
+        comoChegamos: 'Partimos dos 8 anos até o seu filho mais novo se formar (você nos contou) e tratamos esse prazo como o tempo que a sua família precisa manter o padrão de vida sem a sua renda.',
+        prov: 'estimado',
       },
     ],
-    decisao: 'Contratar um seguro de vida que cubra a diferença — custo estimado de R$ 190/mês, impacto: de 11 meses para 8 anos de autonomia para a sua família.',
-    impactoHumano: 'família: de 11 meses para 8 anos de autonomia',
+    decisao: 'Contratar um seguro de vida que cubra a diferença: sua família passa de 11 meses para 8 anos mantendo o padrão de vida sem a sua renda.',
+    decisaoComoChegamos: '8 anos × R$ 16.000/mês = R$ 1.536.000, menos os R$ 180.000 que você já tem, dá cerca de R$ 1.356.000 de capital a segurar. ⚠ O preço mensal depende da sua idade, saúde e da seguradora — por isso a primeira tarefa é pedir 3 cotações, e não um valor que a gente chute aqui.',
+    impactoHumano: 'sua família: de 11 meses para 8 anos sem apertar o padrão de vida',
     tarefas: [
       { titulo: 'Solicitar 3 cotações de seguro de vida', mes: 1, quando: 'no dia do salário' },
       { titulo: 'Escolher e contratar a apólice', mes: 2 },
@@ -136,8 +139,8 @@ export const MODULOS = [
       {
         titulo: 'Sua carteira hoje não usa nenhum veículo com eficiência tributária',
         valor: 'R$ 0',
-        comoChegamos: 'Você nos contou que não possui previdência privada nem veículos com tratamento tributário diferenciado.',
-        prov: 'declarado',
+        comoChegamos: 'Você nos contou que não tem previdência privada. O resto do quadro tributário — regime da empresa, pró-labore x dividendos e o ganho de capital na venda da ótica — ⚠ ainda não foi levantado.',
+        prov: 'estimado',
       },
     ],
     decisao: 'Abrir um PGBL e direcionar parte do aporte mensal para capturar a dedução — impacto: menos imposto pago por ano, dentro da sua faixa.',
@@ -157,9 +160,9 @@ export const MODULOS = [
     cards: [
       {
         titulo: 'Você não tem testamento nem estrutura sucessória',
-        valor: 'Nada estruturado',
-        comoChegamos: 'Você nos contou que não possui testamento, holding ou seguro com finalidade sucessória.',
-        prov: 'declarado',
+        valor: '⚠ a levantar',
+        comoChegamos: '⚠ Ainda não perguntamos isso. Testamento, holding e seguro sucessório não estão no exame de hoje — {consultor} levanta com você antes de fechar este capítulo.',
+        prov: null,
       },
       {
         titulo: 'A rede de óticas é a maior parte do seu patrimônio',
@@ -190,9 +193,9 @@ export const MODULOS = [
         prov: 'estimado',
       },
       {
-        titulo: 'Você poupa R$ 6.000, mas pode combinar R$ 10.000',
-        valor: 'R$ 4.000 de folga',
-        comoChegamos: 'Renda líquida R$ 38.000 − custo de vida R$ 16.000 (você nos contou).',
+        titulo: 'Você guarda R$ 6.000 e sobra espaço para chegar aos R$ 10.000',
+        valor: '+ R$ 4.000',
+        comoChegamos: 'O combinado de R$ 10.000 menos os R$ 6.000 que você guarda hoje. Cabe no orçamento: sua renda líquida é R$ 38.000 e o custo de vida R$ 16.000 (os dois você nos contou).',
         prov: 'estimado',
       },
     ],
@@ -241,8 +244,8 @@ export const MODULOS = [
     conceito: 'Você não precisa virar especialista. Precisa entender o suficiente para saber quando perguntar.',
     cards: [
       {
-        titulo: 'Você domina 12 dos 100 conceitos',
-        valor: '12 / 100',
+        titulo: 'Você já domina 6 conceitos sem ter estudado nada aqui',
+        valor: '6',
         comoChegamos: 'Conceitos que o exame já mostrou que você domina, mais os que o consultor marcou. A coleção nunca começa em zero.',
         prov: 'declarado',
       },
@@ -280,7 +283,8 @@ export const OBJETIVOS = [
     id: 'aposentadoria', nome: 'Aposentadoria', vertical: 'aposentadoria',
     tipo: 'longo', prazo: '2041, aos 69', anoAlvo: 2041, estado: 'noRumo',
     detalhe: 'Aporte combinado de R$ 10.000/mês.',
-    cenarioAperto: { anoRecuado: 2043, aporteExtra: 1400, mesesExtra: 12 },
+    cenarioAperto: { anoRecuado: 2043, aporteExtra: 1400, mesesExtra: 12,
+      frase: 'R$ 1.400 a mais por mês, pelos próximos 12 meses' },
   },
 ];
 
@@ -297,7 +301,7 @@ export const CICLO = {
   mesRef: 'agosto',
   aporteCombinado: 10000,
   comite: {
-    resumo: 'O comitê revisou a carteira neste mês. Não houve mudança na política; os ativos seguem coerentes com o seu horizonte.',
+    resumo: 'Neste mês revisamos os seus investimentos. Nada mudou na forma como eles estão organizados.',
     avaliadoPor: CONSULTOR.nome,
   },
 };
@@ -344,6 +348,7 @@ export const WHATSAPP = [
     texto: `Oi Ricardo, quanto você guardou em agosto? Pode responder aqui mesmo — e pode ser aproximado.` },
   { de: 'cliente', hora: '09:40', texto: 'Consegui uns 6 mil esse mês, foi apertado' },
   { de: 'consultor', hora: '09:41',
-    texto: `Anotado, obrigado. Com R$ 6.000 neste mês, a data de "Aposentadoria" recua 2 meses. Um aporte de R$ 1.400 a mais recoloca você na data combinada — sem correria, dá para recuperar ao longo do ano.` },
-  { de: 'consultor', hora: '09:41', texto: `Qualquer coisa me chama. — ${CONSULTOR.nome}`, assinatura: true },
+    texto: `Mês apertado acontece — e você respondeu, que é o que conta.` },
+  { de: 'consultor', hora: '09:42',
+    texto: `Com R$ 6.000, sua aposentadoria adia uns 2 meses. Se der para guardar R$ 1.400 a mais por mês nos próximos 12, você volta para a data combinada. Sem correria — dá para recuperar ao longo do ano. Qualquer coisa, me chama.` },
 ];

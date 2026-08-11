@@ -4,7 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        orange: { 500: '#FA7A35', 600: '#E06600' },
+        // orange-700 = variante acessível p/ superfícies COM texto branco (AA 5.18:1).
+        // #FA7A35 segue sendo a cor de ação da marca em preenchimentos sem texto.
+        orange: { 500: '#FA7A35', 600: '#E06600', 700: '#C2410C' },
         peach: { 100: '#FFF3EB' },
         navy: { 900: '#20344C', 950: '#131F2E' },
         cream: { 50: '#FDFCFA', 100: '#F7F5F0' },

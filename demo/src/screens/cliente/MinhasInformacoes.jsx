@@ -4,15 +4,16 @@ import { Icone, Badge, Card, Button, Lacuna } from '../../components/ui.jsx';
 
 const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
-export default function MinhasInformacoes({ estado, set }) {
+export default function MinhasInformacoes({ estado, acoes }) {
   const [editando, setEditando] = useState(null);
   const [valor, setValor] = useState('');
 
   const campos = Object.entries(RICARDO.coleta);
-  const patrimonio = RICARDO.coleta.ativosFinanceiros.valor + RICARDO.coleta.valorBens.valor - RICARDO.coleta.saldoDevedor.valor;
+  const c = RICARDO.coleta;
+  const patrimonio = c.ativosFinanceiros.valor + c.valorBens.valor + c.valorOtica.valor - c.saldoDevedor.valor;
 
   const sugerir = (chave) => {
-    set({ sugestoes: [...estado.sugestoes, { chave, valorSugerido: valor, status: 'pendente', em: new Date().toISOString() }] });
+    acoes.sugerirCorrecao(chave, valor, RICARDO.coleta[chave]?.valor ?? null);
     setEditando(null); setValor('');
   };
 
@@ -26,7 +27,13 @@ export default function MinhasInformacoes({ estado, set }) {
       <div className="rounded-module bg-white shadow-float p-6">
         <p className="font-ui text-ink-body text-xs uppercase tracking-wide mb-2">Patrimônio consolidado</p>
         <p className="font-display font-bold text-navy-900 text-3xl mb-1">{brl(patrimonio)}</p>
-        <p className="font-ui text-xs text-ink-body">ativos financeiros + bens − saldo devedor</p>
+        <Badge status="lacuna" className="mb-3">nossa estimativa</Badge>
+        <div className="mt-3 space-y-1 font-ui text-xs text-ink-body">
+          <p>{brl(c.ativosFinanceiros.valor)} em investimentos <span className="opacity-70">(inclui os {brl(c.reservaEmergencia.valor)} de reserva)</span></p>
+          <p>+ {brl(c.valorBens.valor)} em bens</p>
+          <p>+ {brl(c.valorOtica.valor)} da rede de óticas</p>
+          <p>− {brl(c.saldoDevedor.valor)} de financiamentos</p>
+        </div>
       </div>
 
       {/* Cliente SUGERE, nunca sobrescreve (spec §7) */}
@@ -47,10 +54,14 @@ export default function MinhasInformacoes({ estado, set }) {
                 <p className="font-body text-sm text-ink-body flex-1">{c.rotulo}</p>
                 {c.prov
                   ? <Badge status={c.prov === 'declarado' ? 'neutro' : 'lacuna'}>{PROVENIENCIA_ROTULO[c.prov]}</Badge>
-                  : <Badge status="lacuna">falta</Badge>}
+                  : <Badge status="lacuna">ainda não perguntamos</Badge>}
               </div>
               <p className="font-display text-navy-900 text-lg mb-3">
-                {c.valor === null ? <Lacuna /> : typeof c.valor === 'number' ? (c.valor === 0 ? brl(0) : brl(c.valor)) : c.valor}
+                {c.valor === null
+                  ? <Lacuna>{c.naoColetado ? 'não está no exame de hoje' : 'ainda não informado'}</Lacuna>
+                  : typeof c.valor === 'number'
+                    ? (c.unidade ? `${c.valor} ${c.unidade}` : brl(c.valor))
+                    : c.valor}
               </p>
 
               {sugestao ? (
@@ -67,9 +78,13 @@ export default function MinhasInformacoes({ estado, set }) {
                   <Button size="sm" onClick={() => sugerir(chave)} disabled={!valor}>Enviar</Button>
                   <Button size="sm" variant="secondary" onClick={() => setEditando(null)}>×</Button>
                 </div>
+              ) : c.soConsultor ? (
+                <p className="font-ui text-xs text-ink-body">
+                  Só {CONSULTOR.primeiroNome} preenche este campo, com um questionário próprio.
+                </p>
               ) : (
                 <button onClick={() => { setEditando(chave); setValor(''); }}
-                  className="font-ui text-xs text-orange-600 min-h-[44px]">Sugerir correção</button>
+                  className="font-ui text-xs text-orange-700 min-h-[44px] underline underline-offset-2">Sugerir correção</button>
               )}
             </Card>
           );

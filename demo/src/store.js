@@ -1,80 +1,157 @@
-import { useState, useEffect, useCallback } from 'react';
-import { RICARDO, PLANO_ACAO, CASCATA_PADRAO, CONCEITOS } from './data/demo.js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { RICARDO, PLANO_ACAO, CASCATA_PADRAO, CONCEITOS, MODULOS, CICLO } from './data/demo.js';
 
 /**
- * Persistência do protótipo (spec §3.5): namespace POR CLIENTE.
- * Invariante: leitura nunca cruza o clienteAtivoId. "Reiniciar demo" limpa o namespace
- * e recarrega o seed; o switch cliente/consultor troca o perfil ativo sem apagar dados.
+ * Persistência do protótipo (spec §3.5): namespace DERIVADO do cliente ativo.
+ * Rodada 4 (engenheiro): a chave agora vem de `clienteAtivoId` — o invariante de isolamento
+ * passa a ser testável, em vez de afirmado em comentário.
  */
-const NS = 'nl:v1:cliente:ricardo';
-const KEY = `${NS}:estado`;
+const SCHEMA_VERSAO = 2;
+const nsDe = (clienteId) => `nl:v1:cliente:${clienteId}`;
+const chaveDe = (clienteId) => `${nsDe(clienteId)}:estado`;
 
-const seed = () => ({
-  // SessaoDemo
-  atorAtivo: 'cliente',           // 'cliente' | 'consultor'
-  clienteAtivoId: 'ricardo',
+const seed = (clienteAtivoId = 'ricardo') => ({
+  schemaVersao: SCHEMA_VERSAO,
+  atorAtivo: 'cliente',
+  clienteAtivoId,
 
-  // faseCliente (spec §2.2)
-  fase: 'exame',                  // exame | exameConcluido | devolutiva | cicloMensal
-  telaCliente: 'inicio',          // aba ativa da bottom nav
+  fase: 'exame',
+  telaCliente: 'inicio',
 
-  // Exame
   respostas: {},
   indiceExame: 0,
+  totalExameVisto: 0,          // denominador monotônico (C1: nunca encolhe)
   score: null,
 
-  // Devolutiva
-  capituloAtual: 0,
+  // Devolutiva — identidade por ID, nunca por índice posicional (engenheiro R4)
+  modulosLigados: MODULOS.map((m) => m.id),
+  capituloAtualId: MODULOS[0].id,
   passoCapitulo: 0,
-  capitulosVistos: [],
+  noPlano: false,
   cascata: CASCATA_PADRAO,
-  quandoPorTarefa: {},
+  decisoes: {},                // moduloId -> 'combinado' | 'conversar'
 
-  // Ciclo mensal
-  tarefas: PLANO_ACAO.map((t, i) => ({ ...t, id: `t${i}`, feita: false })),
+  tarefas: PLANO_ACAO.map((t, i) => ({
+    ...t, id: `${t.moduloId}:${i}`, feita: false,
+    quando: t.quando || null,   // implementation intention, editável pelo cliente
+  })),
   aporteInformado: null,
   comiteVisto: false,
+  querFalarComite: false,
   conceitos: CONCEITOS.reduce((acc, c) => ({ ...acc, [c.id]: c.dominado }), {}),
-
-  // Sugestões de correção (cliente sugere, nunca sobrescreve — spec §7)
   sugestoes: [],
+  auditLog: [],
 });
 
-function carregar() {
+/** Reconcilia estado persistido com o seed novo, por ID (nunca merge cego de array). */
+function migrar(salvo, base) {
+  if (!salvo || salvo.schemaVersao !== SCHEMA_VERSAO) return base;
+  const tarefas = base.tarefas.map((nova) => {
+    const antiga = (salvo.tarefas || []).find((t) => t.id === nova.id);
+    return antiga ? { ...nova, feita: antiga.feita, quando: antiga.quando ?? nova.quando } : nova;
+  });
+  return { ...base, ...salvo, tarefas, schemaVersao: SCHEMA_VERSAO };
+}
+
+function carregar(clienteId = 'ricardo') {
+  const base = seed(clienteId);
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return seed();
-    return { ...seed(), ...JSON.parse(raw) };
-  } catch {
-    return seed();
-  }
+    const raw = localStorage.getItem(chaveDe(clienteId));
+    return raw ? migrar(JSON.parse(raw), base) : base;
+  } catch { return base; }
 }
 
 export function useEstado() {
-  const [estado, setEstado] = useState(carregar);
+  const [estado, setEstado] = useState(() => carregar());
+  const [erroPersistencia, setErroPersistencia] = useState(false);
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch { /* demo: ignora quota */ }
+    try {
+      localStorage.setItem(chaveDe(estado.clienteAtivoId), JSON.stringify(estado));
+      setErroPersistencia(false);
+    } catch { setErroPersistencia(true); }   // engenheiro R4: falha não é mais silenciosa
   }, [estado]);
 
-  const set = useCallback((patch) => {
-    setEstado((e) => ({ ...e, ...(typeof patch === 'function' ? patch(e) : patch) }));
+  const aplicar = useCallback((patch, auditoria) => {
+    setEstado((e) => {
+      const delta = typeof patch === 'function' ? patch(e) : patch;
+      const log = auditoria
+        ? [...e.auditLog, { ...auditoria, ator: e.atorAtivo, em: new Date().toISOString() }]
+        : e.auditLog;
+      return { ...e, ...delta, auditLog: log };
+    });
   }, []);
 
-  /** Reiniciar demo: limpa o namespace e recarrega o seed (spec §13). */
+  /**
+   * Ações nomeadas com escopo de ator (engenheiro R4, bloqueante).
+   * A fronteira de permissão deixa de ser comentário e passa a ser estrutura:
+   * cada tela recebe apenas o conjunto do ator ativo.
+   */
+  const acoesCliente = useMemo(() => ({
+    navegar: (telaCliente) => aplicar({ telaCliente }),
+    responderExame: (patch) => aplicar(patch),
+    avancarDevolutiva: (patch) => aplicar(patch),
+    registrarDecisao: (moduloId, decisao) =>
+      aplicar((e) => ({ decisoes: { ...e.decisoes, [moduloId]: decisao } }),
+        { entidade: 'decisao', entidadeId: moduloId, depois: decisao, acao: 'registrar' }),
+    definirCascata: (cascata) => aplicar({ cascata }, { entidade: 'cascata', acao: 'ordenar' }),
+    definirQuando: (tarefaId, quando) =>
+      aplicar((e) => ({ tarefas: e.tarefas.map((t) => (t.id === tarefaId ? { ...t, quando } : t)) }),
+        { entidade: 'tarefa', entidadeId: tarefaId, campo: 'quando', depois: quando, acao: 'editar' }),
+    concluirTarefa: (tarefaId) =>
+      aplicar((e) => ({ tarefas: e.tarefas.map((t) => (t.id === tarefaId ? { ...t, feita: !t.feita } : t)) }),
+        { entidade: 'tarefa', entidadeId: tarefaId, campo: 'feita', acao: 'alternar' }),
+    informarAporte: (valor) =>
+      aplicar({ aporteInformado: valor }, { entidade: 'aporte', campo: CICLO.mesRef, depois: valor, acao: 'informar' }),
+    darCienciaComite: (querFalar = false) =>
+      aplicar({ comiteVisto: true, querFalarComite: querFalar },
+        { entidade: 'comite', depois: querFalar ? 'quer falar' : 'ciência', acao: 'registrar' }),
+    // Cliente SUGERE, nunca sobrescreve (spec §7)
+    sugerirCorrecao: (chave, valorSugerido, valorAtual) =>
+      aplicar((e) => ({
+        sugestoes: [...e.sugestoes, {
+          chave, valorSugerido, valorAtualNoMomento: valorAtual,
+          status: 'pendente', em: new Date().toISOString(),
+        }],
+      }), { entidade: 'sugestao', entidadeId: chave, depois: valorSugerido, acao: 'criar' }),
+    dominarConceito: (conceitoId) =>
+      aplicar((e) => ({ conceitos: { ...e.conceitos, [conceitoId]: true } })),
+  }), [aplicar]);
+
+  const acoesConsultor = useMemo(() => ({
+    alternarModulo: (moduloId) =>
+      aplicar((e) => ({
+        modulosLigados: e.modulosLigados.includes(moduloId)
+          ? e.modulosLigados.filter((x) => x !== moduloId)
+          : [...e.modulosLigados, moduloId],
+      }), { entidade: 'modulo', entidadeId: moduloId, acao: 'alternar' }),
+    publicarDevolutiva: () =>
+      aplicar({ atorAtivo: 'cliente' }, { entidade: 'devolutiva', acao: 'publicar' }),
+    resolverSugestao: (chave, status) =>
+      aplicar((e) => ({ sugestoes: e.sugestoes.map((s) => (s.chave === chave ? { ...s, status } : s)) }),
+        { entidade: 'sugestao', entidadeId: chave, depois: status, acao: 'resolver' }),
+  }), [aplicar]);
+
+  /** Controles do protótipo (fora do escopo dos dois atores). */
+  const trocarAtor = useCallback((atorAtivo) => aplicar({ atorAtivo }), [aplicar]);
+
   const reiniciar = useCallback(() => {
     try {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith(NS))
-        .forEach((k) => localStorage.removeItem(k));
+      Object.keys(localStorage).filter((k) => k.startsWith('nl:')).forEach((k) => localStorage.removeItem(k));
     } catch { /* noop */ }
     setEstado(seed());
   }, []);
 
-  /** Pular o exame e cair direto na devolutiva — atalho de demonstração. */
   const pularParaDevolutiva = useCallback(() => {
-    set({ fase: 'devolutiva', score: RICARDO.score, capituloAtual: 0, passoCapitulo: 0 });
-  }, [set]);
+    aplicar({ fase: 'devolutiva', score: RICARDO.score, capituloAtualId: MODULOS[0].id, passoCapitulo: 0, noPlano: false });
+  }, [aplicar]);
 
-  return { estado, set, reiniciar, pularParaDevolutiva };
+  return { estado, acoesCliente, acoesConsultor, trocarAtor, reiniciar, pularParaDevolutiva, erroPersistencia };
+}
+
+/** Limpeza de emergência usada pelo ErrorBoundary (fora da árvore React). */
+export function limparTudo() {
+  try {
+    Object.keys(localStorage).filter((k) => k.startsWith('nl:')).forEach((k) => localStorage.removeItem(k));
+  } catch { /* noop */ }
 }

@@ -29,14 +29,14 @@ export function Marca({ size = 32, invertido = false }) {
 export function Button({ variant = 'primary', size = 'md', icon, children, className = '', ...rest }) {
   const sizes = { sm: 'px-4 py-2 text-sm', md: 'px-6 py-3 text-base', lg: 'px-7 py-[15px] text-lg' };
   const variants = {
-    primary: 'bg-orange-500 text-white rounded-full hover:brightness-95',
+    primary: 'bg-orange-700 text-white rounded-full hover:brightness-110',
     secondary: 'bg-white text-navy-900 border border-ink-line rounded-btn hover:brightness-95',
-    tertiary: 'bg-peach-100 text-orange-600 rounded-btn font-display hover:brightness-95',
+    tertiary: 'bg-peach-100 text-orange-700 rounded-btn font-display hover:brightness-95',
     ghost: 'bg-white/10 text-white rounded-btn hover:bg-white/[0.16] border border-white/15',
   };
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 font-ui font-semibold transition-[background-color,opacity,transform] duration-150 active:scale-[.97] disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 font-ui font-semibold transition-[background-color,opacity,transform] duration-150 active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] ${sizes[size]} ${variants[variant]} ${className}`}
       {...rest}
     >
       {icon}{children}
@@ -47,7 +47,7 @@ export function Button({ variant = 'primary', size = 'md', icon, children, class
 /* ── Badge ───────────────────────────────────────────────────────────────── */
 export function Badge({ status = 'good', children, className = '' }) {
   const cores = {
-    good: 'bg-score-good', medium: 'bg-score-medium', low: 'bg-score-low',
+    good: 'bg-[#1F7A45]', medium: 'bg-orange-700', low: 'bg-[#B03636]',
     neutro: 'bg-navy-900', lacuna: 'bg-[#8A94A6]',
   };
   return (
@@ -109,7 +109,10 @@ export function Icone({ nome, size = 24, className = '', strokeWidth = 1.75 }) {
 
 /* ── Input de moeda com chips (componente prioritário — spec §14) ────────── */
 export function InputMoedaChips({ valor, onChange, chips = [], permiteVaria = true }) {
-  const [varia, setVaria] = useState(false);
+  // Rodada 4 (engenheiro): estado derivado do valor — antes um useState interno vazava
+  // entre perguntas e renderizava NaN ao voltar.
+  const varia = valor === 'varia';
+  const numerico = typeof valor === 'number' ? valor : null;
   const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
   return (
@@ -118,7 +121,7 @@ export function InputMoedaChips({ valor, onChange, chips = [], permiteVaria = tr
         <span className="absolute left-4 top-1/2 -translate-y-1/2 font-ui text-ink-body">R$</span>
         <input
           inputMode="numeric" disabled={varia}
-          value={valor === null || valor === undefined ? '' : Number(valor).toLocaleString('pt-BR')}
+          value={numerico === null ? '' : numerico.toLocaleString('pt-BR')}
           onChange={(e) => onChange(Number(e.target.value.replace(/\D/g, '')) || 0)}
           placeholder="0"
           className="w-full pl-12 pr-4 py-3.5 rounded-input border border-ink-line bg-white font-ui text-lg text-navy-900 outline-none focus:border-orange-500 disabled:opacity-50"
@@ -126,14 +129,14 @@ export function InputMoedaChips({ valor, onChange, chips = [], permiteVaria = tr
       </div>
       <div className="flex flex-wrap gap-2">
         {chips.map((c) => (
-          <button key={c} type="button" onClick={() => { setVaria(false); onChange(c); }}
+          <button key={c} type="button" onClick={() => onChange(c)}
             className={`px-4 py-2.5 rounded-full font-ui text-sm border transition-colors min-h-[44px]
-              ${valor === c && !varia ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-navy-900 border-ink-line hover:border-orange-500'}`}>
+              ${numerico === c ? 'bg-orange-700 text-white border-orange-700' : 'bg-white text-navy-900 border-ink-line hover:border-orange-500'}`}>
             {fmt(c)}
           </button>
         ))}
         {permiteVaria && (
-          <button type="button" onClick={() => { setVaria(!varia); onChange(varia ? 0 : 'varia'); }}
+          <button type="button" onClick={() => onChange(varia ? null : 'varia')}
             className={`px-4 py-2.5 rounded-full font-ui text-sm border transition-colors min-h-[44px]
               ${varia ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-ink-body border-ink-line hover:border-navy-900'}`}>
             Varia muito
@@ -145,8 +148,10 @@ export function InputMoedaChips({ valor, onChange, chips = [], permiteVaria = tr
 }
 
 /* ── Barra de progresso adaptativa (nunca retrocede — goal-gradient) ─────── */
-export function BarraProgresso({ atual, total, escura = false }) {
+export function BarraProgresso({ atual, total, escura = false, reset }) {
   const pico = useRef(0);
+  const ancora = useRef(reset);
+  if (ancora.current !== reset) { ancora.current = reset; pico.current = 0; }
   const pct = total > 0 ? Math.round((atual / total) * 100) : 0;
   pico.current = Math.max(pico.current, pct);
   return (

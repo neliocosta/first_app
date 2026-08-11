@@ -3,7 +3,13 @@ import { FAIXAS } from '../data/exame.js';
 import { CONSULTOR } from '../data/demo.js';
 import { Marca, Button, Icone, ScoreAnimado, SeloDemo } from '../components/ui.jsx';
 
-export default function Resultado({ estado, set }) {
+export default function Resultado({ estado, acoes }) {
+  const [revelado, setRevelado] = React.useState(false);
+  React.useEffect(() => {
+    const reduz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const t = setTimeout(() => setRevelado(true), reduz ? 0 : 1500);
+    return () => clearTimeout(t);
+  }, []);
   const score = estado.score ?? 0;
   const faixa = FAIXAS.find((f) => score >= f.min && score < f.max) || FAIXAS[FAIXAS.length - 1];
 
@@ -26,7 +32,7 @@ export default function Resultado({ estado, set }) {
               <div className="h-full rounded-full transition-[width] duration-1000"
                 style={{ width: `${score}%`, background: faixa.cor }} />
             </div>
-            <p className="font-display text-white text-lg leading-snug">{faixa.texto}</p>
+            <p className={`font-display text-white text-lg leading-snug transition-opacity duration-500 ${revelado ? 'opacity-100' : 'opacity-0'}`}>{faixa.texto}</p>
           </div>
         </div>
 
@@ -47,15 +53,16 @@ export default function Resultado({ estado, set }) {
           <h2 className="font-display font-semibold text-navy-900 text-lg mb-3">O que acontece agora</h2>
           <p className="font-body text-ink-body leading-relaxed mb-5">
             Proteção da família e sucessão são dois dos temas que <strong className="text-navy-900">{CONSULTOR.nome}</strong> vai
-            aprofundar com você na devolutiva. Você não precisa decidir nada agora.
+            aprofundar com você na conversa de resultado. Você não precisa decidir nada agora.
           </p>
-          <Button className="w-full" onClick={() => set({ fase: 'devolutiva', capituloAtual: 0, passoCapitulo: 0 })}>
-            Ver minha devolutiva
+          <Button className="w-full" onClick={() => acoes.avancarDevolutiva({ fase: 'devolutiva', passoCapitulo: 0, noPlano: false })}>
+            Ver o que {CONSULTOR.primeiroNome} preparou para você
           </Button>
         </div>
 
-        <p className="text-center font-ui text-xs text-white/35">
-          Os 5 pilares — Patrimônio · Poupança · Proteção · Consciência · Atitude
+        <p className="text-center font-ui text-xs text-white/55 leading-relaxed">
+          O que entrou nesta conta: o que você tem · o que você guarda ·
+          o que está protegido · o que você já sabe · o que você já fez
         </p>
       </main>
     </div>

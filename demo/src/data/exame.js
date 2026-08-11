@@ -55,26 +55,26 @@ export const PERGUNTAS = [
   {
     id: 'q05', pilar: PILARES.CONSCIENCIA, tipo: TIPOS.SIM_NAO,
     texto: 'Você já parou para avaliar quanto precisará de dinheiro para realizar esse(s) objetivo(s)?',
-    ajuda: 'Se não souber a resposta, escolha "Não".',
-    condicao: { campo: 'q04', igual: 'SIM' },
+    permiteNaoSei: true,
+    condicao: { campo: 'q04', igual: 'Sim' },
   },
   {
     id: 'q06', pilar: PILARES.ATITUDE, tipo: TIPOS.SIM_NAO,
     texto: 'Você já possui um plano concreto desenhado para conseguir o valor necessário?',
     ajuda: 'Se seu plano for apenas superficial, deixe marcado "Não".',
-    condicao: { campo: 'q04', igual: 'SIM' },
+    condicao: { campo: 'q04', igual: 'Sim' },
   },
   {
     id: 'q07', pilar: PILARES.POUPANCA, tipo: TIPOS.MOEDA,
     texto: 'Qual valor você imagina que precisa investir por mês para realizar seu(s) objetivo(s)?',
     chips: [1000, 2500, 5000, 10000, 20000], permiteVaria: true,
-    condicao: { campo: 'q04', igual: 'SIM' },
+    condicao: { campo: 'q04', igual: 'Sim' },
   },
   {
     id: 'q08', pilar: PILARES.POUPANCA, tipo: TIPOS.MOEDA,
     texto: 'E quanto, de fato, do valor anterior você está investindo mensalmente para isso?',
     chips: [0, 1000, 2500, 5000, 10000], permiteVaria: true,
-    condicao: { campo: 'q04', igual: 'SIM' },
+    condicao: { campo: 'q04', igual: 'Sim' },
   },
   // ──────────────────────────────────────────────────────────────────────────
   {
@@ -101,7 +101,7 @@ export const PERGUNTAS = [
     id: 'q13', pilar: PILARES.PATRIMONIO, tipo: TIPOS.MULTI, chave: 'bens',
     texto: 'Qual(is) dos bens abaixo você possui?',
     ajuda: 'Marque mesmo se o bem estiver financiado.',
-    opcoes: ['Veículos', 'Casa', 'Apartamento', 'Imóveis Comerciais', 'Outros'],
+    opcoes: ['Veículos', 'Casa', 'Apartamento', 'Imóveis Comerciais', 'Empresa / participação societária', 'Outros'],
     opcaoNenhum: 'Nenhum',
   },
   // ── CONDICIONAL 2 + CORREÇÃO DO BUG DE PRODUÇÃO ───────────────────────────
@@ -232,7 +232,7 @@ export const PERGUNTAS = [
  * visualmente (goal-gradient, spec §4).
  */
 export const CONDICIONAIS = [
-  { id: 1, mostra: ['q05', 'q06', 'q07', 'q08'], quando: 'q04 = SIM' },
+  { id: 1, mostra: ['q05', 'q06', 'q07', 'q08'], quando: 'q04 = Sim' },
   { id: 2, mostra: ['q14'], quando: 'q13 ≠ Nenhum', nota: 'opções espelham a q13 (correção do bug de produção)' },
   { id: 3, mostra: ['q15'], quando: 'q13 ≠ Nenhum' },
   { id: 4, mostra: ['q18'], quando: 'q17 = Sim' },
@@ -242,8 +242,8 @@ export const CONDICIONAIS = [
 
 /** Faixas de resultado — copy da spec §11.1 (descreve a situação, nunca a pessoa). */
 export const FAIXAS = [
-  { min: 0,  max: 20,  token: 'low',    cor: '#D64545', texto: 'Sua saúde financeira está no começo da construção — há bases a montar por aqui.' },
-  { min: 20, max: 40,  token: 'low',    cor: '#E07A3F', texto: 'Você já começou; ainda há fundamentos importantes a montar.' },
+  { min: 0,  max: 20,  token: 'low',    cor: '#D64545', texto: 'Sua saúde financeira está no começo — há bases importantes a montar.' },
+  { min: 20, max: 40,  token: 'low',    cor: '#E07A3F', texto: 'As bases já saíram do papel — ainda faltam fundamentos importantes.' },
   { min: 40, max: 60,  token: 'medium', cor: '#FA7A35', texto: 'Fundamentos em pé — dá para avançar com passos regulares.' },
   { min: 60, max: 80,  token: 'good',   cor: '#4FA97B', texto: 'Boa estrutura — agora é refinar e proteger o que você construiu.' },
   { min: 80, max: 100, token: 'good',   cor: '#2E9E5B', texto: 'Sua saúde financeira está sólida — foco em manter o que construiu e cuidar de quem vem depois.' },

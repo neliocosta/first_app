@@ -2,7 +2,7 @@ import React from 'react';
 import { MODULOS, VERTICAIS, CICLO } from '../../data/demo.js';
 import { Icone, Badge, Card } from '../../components/ui.jsx';
 
-export default function Plano({ estado, set }) {
+export default function Plano({ estado, acoes }) {
   const feitas = estado.tarefas.filter((t) => t.feita).length;
   const aderencia = estado.aporteInformado === null ? null
     : Math.min(100, Math.round((estado.aporteInformado / CICLO.aporteCombinado) * 100));
@@ -45,7 +45,10 @@ export default function Plano({ estado, set }) {
         <Card key={v.id} className="!p-5">
           <div className="flex items-center gap-3 mb-3">
             <Icone nome={v.icone} size={18} className="text-navy-900" />
-            <h3 className="font-display font-semibold text-navy-900 flex-1">{v.nome}</h3>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display font-semibold text-navy-900">{v.rotuloHumano || v.nome}</h3>
+              {v.rotuloHumano && <p className="font-ui text-[11px] text-ink-body">{v.nome}</p>}
+            </div>
             {v.inerte
               ? <Badge status="lacuna">aguardando metodologia</Badge>
               : <Badge status="neutro">{v.projetos.length}</Badge>}
@@ -62,7 +65,7 @@ export default function Plano({ estado, set }) {
                 const resolvido = tarefas.length > 0 && tarefas.every((t) => t.feita);
                 return (
                   <div key={p.id} className="flex items-start gap-3">
-                    <span className={`w-2 h-2 rounded-full mt-2 shrink-0 ${resolvido ? 'bg-score-good' : 'bg-ink-line'}`} />
+                    <span className={`w-2 h-2 rounded-full mt-2 shrink-0 ${resolvido ? 'bg-[#1F7A45]' : 'bg-ink-line'}`} />
                     <div className="flex-1 min-w-0">
                       <p className="font-body text-sm text-navy-900">{p.titulo}</p>
                       <p className="font-ui text-[11px] text-ink-body mt-0.5">{p.impactoHumano}</p>

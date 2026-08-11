@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { OBJETIVOS, CICLO } from '../../data/demo.js';
+import { consequenciaDoAporte, fraseDoCaminhoDeVolta } from '../../calculo.js';
 import { Icone, Badge, Card, Button } from '../../components/ui.jsx';
 
 const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
-export default function MinhaJornada() {
+export default function MinhaJornada({ estado }) {
   const [aperto, setAperto] = useState(false);
-  const apos = OBJETIVOS.find((o) => o.id === 'aposentadoria');
-  const cen = apos.cenarioAperto;
+  const [agendado, setAgendado] = useState(false);
+  const apos = OBJETIVOS.find((o) => o.id === 'aposentadoria') || OBJETIVOS[OBJETIVOS.length - 1];
+  // Mesma função do Início — o remédio não pode ter dois valores (C3)
+  const cons = consequenciaDoAporte(6000, CICLO.aporteCombinado);
+  const volta = fraseDoCaminhoDeVolta(cons);
 
   const noRumo = OBJETIVOS.filter((o) => o.estado === 'noRumo').length;
   const total = OBJETIVOS.length;
@@ -21,7 +25,7 @@ export default function MinhaJornada() {
 
       {/* Consolidado: "estou no rumo no todo?" — soma explicada, não número opaco */}
       <div className="rounded-module bg-white shadow-float p-6">
-        <p className="font-ui text-ink-body text-xs uppercase tracking-wide mb-3">No todo</p>
+        <p className="font-ui text-ink-body text-xs uppercase tracking-wide mb-3">No geral</p>
         <p className="font-display text-navy-900 text-xl leading-snug mb-4">
           {aperto ? `${noRumo - 1} de ${total} objetivos no rumo. 1 pede atenção.` : `${noRumo} de ${total} objetivos no rumo.`}
         </p>
@@ -33,7 +37,7 @@ export default function MinhaJornada() {
         </div>
         <p className="font-body text-sm text-ink-body leading-relaxed">
           {aperto
-            ? 'A proteção da família concluiu adiantada; a aposentadoria recuou com os meses mais curtos. Um compensa parte do outro — e há caminho de volta.'
+            ? 'A proteção da família ficou pronta antes do prazo. A aposentadoria recuou porque você guardou menos em alguns meses. Um compensa parte do outro — e há caminho de volta.'
             : 'Seus aportes estão em dia e as tarefas dentro do prazo. O plano inteiro está de pé.'}
         </p>
       </div>
@@ -51,10 +55,10 @@ export default function MinhaJornada() {
                 <Card className="!p-5">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <h3 className="font-display font-semibold text-navy-900">{o.nome}</h3>
-                    <Badge status={recuado ? 'medium' : 'good'}>{recuado ? 'atrasou' : 'no rumo'}</Badge>
+                    <Badge status={recuado ? 'medium' : 'good'}>{recuado ? `recuou ${cons.mesesAtraso} ${cons.mesesAtraso === 1 ? 'mês' : 'meses'}` : 'no rumo'}</Badge>
                   </div>
                   <p className="font-display text-orange-600 text-lg mb-2">
-                    {recuado ? `${cen.anoRecuado}, aos 71` : o.prazo}
+                    {recuado ? `${o.prazo} + ${cons.mesesAtraso} ${cons.mesesAtraso === 1 ? 'mês' : 'meses'}` : o.prazo}
                   </p>
                   <p className="font-body text-sm text-ink-body leading-relaxed">{o.detalhe}</p>
 
@@ -68,11 +72,11 @@ export default function MinhaJornada() {
 
                   {/* Caminho de volta: mesma tela, MESMO peso visual (gain-frame) */}
                   {recuado && (
-                    <div className="mt-3 px-4 py-3 rounded-btn bg-score-good/10 border border-score-good/25">
-                      <p className="font-body text-sm text-navy-900 leading-relaxed">
-                        <strong>Um aporte extra de {brl(cen.aporteExtra)}/mês pelos próximos {cen.mesesExtra} meses
-                        recoloca {apos.anoAlvo}.</strong>
-                      </p>
+                    <div className="mt-3 px-4 py-3 rounded-btn bg-[#1F7A45]/10 border border-[#1F7A45]/25">
+                      <p className="font-body text-sm text-navy-900 leading-relaxed mb-3"><strong>{volta}</strong></p>
+                      <Button size="sm" onClick={() => setAgendado(true)}>
+                        {agendado ? 'Combinado — avisamos o consultor' : 'Quero recolocar a data'}
+                      </Button>
                     </div>
                   )}
                 </Card>
@@ -84,7 +88,7 @@ export default function MinhaJornada() {
 
       {/* Demonstra o fio aporte → data (física, não culpa) */}
       <div className="rounded-card bg-white/[0.06] border border-white/10 p-5">
-        <p className="font-ui text-white/45 text-xs mb-3">simulação da demonstração</p>
+        <p className="font-ui text-white/60 text-xs mb-3">simulação da demonstração</p>
         <p className="font-body text-white/70 text-sm leading-relaxed mb-4">
           Veja o que acontece com a linha do tempo quando o mês aperta — e como se volta.
         </p>
@@ -93,11 +97,10 @@ export default function MinhaJornada() {
         </Button>
       </div>
 
-      {/* A metáfora da escalada vive AQUI e só aqui — skin separável */}
       <div className="rounded-card bg-white/[0.04] border border-white/10 p-5 flex items-center gap-3">
-        <Icone nome="map" size={18} className="text-white/35" />
-        <p className="font-ui text-white/40 text-xs leading-relaxed">
-          A visão de escalada da jornada vive nesta tela — e pode ser desligada sem afetar o plano.
+        <Icone nome="map" size={18} className="text-white/50" />
+        <p className="font-ui text-white/60 text-xs leading-relaxed">
+          Você pode desligar a visão de escalada. O plano não muda.
         </p>
       </div>
     </div>
