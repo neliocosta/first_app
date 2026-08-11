@@ -23,8 +23,12 @@ function WhatsAppMock({ onFechar, consequencia }) {
             <div key={i} className={`flex ${msg.de === 'cliente' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[82%] px-3.5 py-2.5 rounded-xl font-body text-[13px] leading-relaxed shadow-sm
                 ${msg.de === 'cliente' ? 'bg-[#DCF8C6] text-navy-950' : 'bg-white text-navy-950'}`}>
-                {/* O remédio no WhatsApp é o MESMO da tela — mesma função de cálculo */}
-                {i === 2 && volta ? `Com ${brl(consequencia.deficitBase)}, sua aposentadoria adia ${consequencia.mesesAtraso} ${consequencia.mesesAtraso === 1 ? 'mês' : 'meses'}. ${volta} Sem correria — dá para recuperar ao longo do ano. Qualquer coisa, me chama.` : msg.texto}
+                {/* O remédio no WhatsApp é montado com a MESMA função da tela.
+                    Só a mensagem marcada `remedio` é reescrita — a de reconhecimento
+                    ("Mês apertado acontece — e você respondeu") fica intacta. */}
+                {msg.remedio && volta
+                  ? `Com ${brl(consequencia.aporteInformado)}, sua aposentadoria adia ${consequencia.mesesAtraso} ${consequencia.mesesAtraso === 1 ? 'mês' : 'meses'}. ${volta} Sem correria — dá para recuperar ao longo do ano. Qualquer coisa, me chama.`
+                  : msg.texto}
                 <span className="block text-right text-[10px] text-black/40 mt-1">{msg.hora}</span>
               </div>
             </div>
@@ -61,7 +65,7 @@ export default function Inicio({ estado, acoes }) {
     ? Math.round((tarefasDoObjetivo.filter((t) => t.feita).length / tarefasDoObjetivo.length) * 100) : 0;
 
   const cons = consequenciaDoAporte(estado.aporteInformado, CICLO.aporteCombinado);
-  if (cons) cons.deficitBase = estado.aporteInformado;
+  if (cons) cons.aporteInformado = estado.aporteInformado;
   const volta = fraseDoCaminhoDeVolta(cons);
 
   // C5 — celebração contingente: só com comportamento, e o texto vem do que ocorreu
@@ -199,7 +203,11 @@ export default function Inicio({ estado, acoes }) {
                 </details>
               </>
             )}
-            {cons && cons.emDia && <p className="font-body text-sm text-[#1F7A45]">Você está no rumo do seu plano.</p>}
+            {cons && cons.emDia && (
+              <p className="font-body text-sm text-[#1F7A45]">
+                {cons.quaseEmDia ? 'Praticamente o combinado — segue no rumo.' : 'Você está no rumo do seu plano.'}
+              </p>
+            )}
             <button onClick={() => { setEditandoAporte(true); setAporte(estado.aporteInformado); }}
               className="mt-3 font-ui text-xs text-orange-700 min-h-[44px] underline underline-offset-2">corrigir o valor</button>
           </div>

@@ -10,7 +10,9 @@ export default function MinhaJornada({ estado }) {
   const [agendado, setAgendado] = useState(false);
   const apos = OBJETIVOS.find((o) => o.id === 'aposentadoria') || OBJETIVOS[OBJETIVOS.length - 1];
   // Mesma função do Início — o remédio não pode ter dois valores (C3)
-  const cons = consequenciaDoAporte(6000, CICLO.aporteCombinado);
+  // Lê o aporte REAL informado no ciclo; o botão abaixo só simula quando não há dado.
+  const aporteBase = estado?.aporteInformado ?? 6000;
+  const cons = consequenciaDoAporte(aporteBase, CICLO.aporteCombinado);
   const volta = fraseDoCaminhoDeVolta(cons);
 
   const noRumo = OBJETIVOS.filter((o) => o.estado === 'noRumo').length;
@@ -57,14 +59,14 @@ export default function MinhaJornada({ estado }) {
                     <h3 className="font-display font-semibold text-navy-900">{o.nome}</h3>
                     <Badge status={recuado ? 'medium' : 'good'}>{recuado ? `recuou ${cons.mesesAtraso} ${cons.mesesAtraso === 1 ? 'mês' : 'meses'}` : 'no rumo'}</Badge>
                   </div>
-                  <p className="font-display text-orange-600 text-lg mb-2">
+                  <p className="font-display text-orange-700 text-lg mb-2">
                     {recuado ? `${o.prazo} + ${cons.mesesAtraso} ${cons.mesesAtraso === 1 ? 'mês' : 'meses'}` : o.prazo}
                   </p>
                   <p className="font-body text-sm text-ink-body leading-relaxed">{o.detalhe}</p>
 
                   {o.tipo === 'evento' && (
                     <div className="mt-3 px-4 py-3 rounded-btn bg-peach-100">
-                      <p className="font-ui text-xs text-orange-600 leading-relaxed">
+                      <p className="font-ui text-xs text-orange-700 leading-relaxed">
                         Liquidez estimada de {brl(o.liquidezEstimada)} entra no plano e antecipa a data da aposentadoria.
                       </p>
                     </div>
@@ -93,7 +95,7 @@ export default function MinhaJornada({ estado }) {
           Veja o que acontece com a linha do tempo quando o mês aperta — e como se volta.
         </p>
         <Button variant="ghost" size="sm" onClick={() => setAperto(!aperto)}>
-          {aperto ? `Voltar ao ritmo de ${brl(CICLO.aporteCombinado)}/mês` : 'Simular dois meses a R$ 6.000'}
+          {aperto ? `Voltar ao ritmo de ${brl(CICLO.aporteCombinado)}/mês` : `Simular um mês a ${brl(aporteBase)}`}
         </Button>
       </div>
 

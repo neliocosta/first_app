@@ -253,6 +253,16 @@ export default function Devolutiva({ estado, acoes }) {
   const m = modulos[idx];
   const { passoCapitulo, noPlano } = estado;
 
+  if (modulos.length === 0) {
+    return (
+      <div className="pt-10 text-center">
+        <Icone nome="folder" size={32} className="text-white/40 mx-auto mb-4" />
+        <h1 className="font-display font-semibold text-white text-xl mb-2">Seu consultor está montando os capítulos</h1>
+        <p className="font-body text-white/65 mb-8">Assim que ele publicar, eles aparecem aqui.</p>
+        <Button onClick={() => acoes.avancarDevolutiva({ fase: 'cicloMensal', telaCliente: 'inicio' })}>Ir para o início</Button>
+      </div>
+    );
+  }
   if (!m && !noPlano) return null;
 
   const passos = [PassoConceito, PassoNumeros, PassoDecisao, PassoTarefas];

@@ -283,8 +283,6 @@ export const OBJETIVOS = [
     id: 'aposentadoria', nome: 'Aposentadoria', vertical: 'aposentadoria',
     tipo: 'longo', prazo: '2041, aos 69', anoAlvo: 2041, estado: 'noRumo',
     detalhe: 'Aporte combinado de R$ 10.000/mês.',
-    cenarioAperto: { anoRecuado: 2043, aporteExtra: 1400, mesesExtra: 12,
-      frase: 'R$ 1.400 a mais por mês, pelos próximos 12 meses' },
   },
 ];
 
@@ -349,6 +347,8 @@ export const WHATSAPP = [
   { de: 'cliente', hora: '09:40', texto: 'Consegui uns 6 mil esse mês, foi apertado' },
   { de: 'consultor', hora: '09:41',
     texto: `Mês apertado acontece — e você respondeu, que é o que conta.` },
-  { de: 'consultor', hora: '09:42',
-    texto: `Com R$ 6.000, sua aposentadoria adia uns 2 meses. Se der para guardar R$ 1.400 a mais por mês nos próximos 12, você volta para a data combinada. Sem correria — dá para recuperar ao longo do ano. Qualquer coisa, me chama.` },
+  // O texto do remédio é montado em tela por fraseDoCaminhoDeVolta() — nunca fixo aqui,
+  // senão o mesmo número volta a ter dois valores (regressão pega na Rodada 5).
+  { de: 'consultor', hora: '09:42', remedio: true,
+    texto: `Qualquer coisa, me chama.` },
 ];

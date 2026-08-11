@@ -21,7 +21,7 @@ export const TIPO = {
   ESCALA: 'escala', AREA: 'area', ARQUIVO: 'arquivo', CALCULADO: 'calculado',
 };
 
-export const SECOES = [
+const SECOES_BASE = [
   {
     id: 's01', numero: '01', titulo: 'Objetivos Financeiros', vertical: 'financeira', icone: 'target',
     grupos: [
@@ -75,9 +75,9 @@ export const SECOES = [
             ajuda: 'Somente o valor de sua responsabilidade', deExame: 'q28',
             expande: 'No exame você estimou o seu custo de vida. Vamos abrir isso por categoria?' },
           { chave: 'orc.vezesPoupou', rotulo: 'Quantas vezes poupou esse valor nos últimos 12 meses?', tipo: TIPO.SELECAO,
-            opcoes: ['Nenhuma', '1–3 vezes', '4–6 vezes', '7–9 vezes', '10 ou mais'], obrigatorio: true, deExame: 'q03' },
+            opcoes: ['Nenhuma', '1-3 vezes', '4-6 vezes', '7-9 vezes', '10 ou mais'], obrigatorio: true, deExame: 'q03' },
           { chave: 'orc.acompanha', rotulo: 'Acompanha as despesas mensais?', tipo: TIPO.SELECAO,
-            opcoes: ['Sim - em detalhes', 'Sim - parcialmente', 'Não mas tenho ideia', 'Não faço ideia'], obrigatorio: true, deExame: 'q27' },
+            opcoes: ['Sim - acompanho em detalhes', 'Sim - acompanho parcialmente', 'Não acompanho, mas tenho ideia', 'Não faço ideia'], obrigatorio: true, deExame: 'q27' },
         ],
       },
       {
@@ -156,7 +156,7 @@ export const SECOES = [
     id: 's04', numero: '04', titulo: 'Proteção', vertical: 'riscos', icone: 'shield',
     grupos: [
       { titulo: 'Proteção Automóvel', condicional: true, campos: [
-        { chave: 'auto.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: 'q14',
+        { chave: 'auto.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: { pergunta: 'q14', via: 'inclui', valor: 'Veículos' },
           expande: 'No exame você marcou quais bens estão segurados. Vamos pegar os dados da apólice?' },
         { chave: 'auto.seguradora', rotulo: 'Seguradora', tipo: TIPO.TEXTO, revelaSe: { campo: 'auto.tem', igual: 'Sim' } },
         { chave: 'auto.bem', rotulo: 'Bem segurado', tipo: TIPO.TEXTO, revelaSe: { campo: 'auto.tem', igual: 'Sim' } },
@@ -167,7 +167,7 @@ export const SECOES = [
         { chave: 'auto.renovacao', rotulo: 'Mês de renovação', tipo: TIPO.MES, revelaSe: { campo: 'auto.tem', igual: 'Sim' } },
       ]},
       { titulo: 'Proteção Residencial', condicional: true, campos: [
-        { chave: 'resid.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: 'q14' },
+        { chave: 'resid.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: { pergunta: 'q14', via: 'inclui', valor: 'Casa' } },
         { chave: 'resid.seguradora', rotulo: 'Seguradora', tipo: TIPO.TEXTO, revelaSe: { campo: 'resid.tem', igual: 'Sim' } },
         { chave: 'resid.imovel', rotulo: 'Imóvel segurado', tipo: TIPO.TEXTO, revelaSe: { campo: 'resid.tem', igual: 'Sim' } },
         { chave: 'resid.covIncendio', rotulo: 'Cobertura Incêndio', tipo: TIPO.MOEDA, revelaSe: { campo: 'resid.tem', igual: 'Sim' } },
@@ -178,7 +178,7 @@ export const SECOES = [
         { chave: 'resid.renovacao', rotulo: 'Mês de renovação', tipo: TIPO.MES, revelaSe: { campo: 'resid.tem', igual: 'Sim' } },
       ]},
       { titulo: 'Proteção Vida', condicional: true, campos: [
-        { chave: 'vida.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: 'q16',
+        { chave: 'vida.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: { pergunta: 'q16', via: 'inclui', valor: 'Seguro de Vida' },
           expande: 'O exame mostrou quais seguros você tem. Vamos ver a cobertura e o prazo de cada um?' },
         { chave: 'vida.seguradora', rotulo: 'Seguradora', tipo: TIPO.TEXTO, revelaSe: { campo: 'vida.tem', igual: 'Sim' } },
         { chave: 'vida.coberto', rotulo: 'Valor coberto', tipo: TIPO.MOEDA, revelaSe: { campo: 'vida.tem', igual: 'Sim' } },
@@ -187,13 +187,13 @@ export const SECOES = [
         { chave: 'vida.prazo', rotulo: 'Prazo de cobertura', tipo: TIPO.TEXTO, exemplo: '20 anos', revelaSe: { campo: 'vida.tem', igual: 'Sim' } },
       ]},
       { titulo: 'Proteção Acidentes', condicional: true, campos: [
-        { chave: 'acid.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: 'q16' },
+        { chave: 'acid.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: { pergunta: 'q16', via: 'inclui', valor: 'Seguro de Acidentes Pessoais' } },
         { chave: 'acid.seguradora', rotulo: 'Seguradora', tipo: TIPO.TEXTO, revelaSe: { campo: 'acid.tem', igual: 'Sim' } },
         { chave: 'acid.coberto', rotulo: 'Valor coberto', tipo: TIPO.MOEDA, revelaSe: { campo: 'acid.tem', igual: 'Sim' } },
         { chave: 'acid.premio', rotulo: 'Prêmio mensal', tipo: TIPO.MOEDA, revelaSe: { campo: 'acid.tem', igual: 'Sim' } },
       ]},
       { titulo: 'Plano de Saúde', condicional: true, campos: [
-        { chave: 'saude.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: 'q16' },
+        { chave: 'saude.tem', rotulo: 'Protegido?', tipo: TIPO.SIMNAO, deExame: { pergunta: 'q16', via: 'inclui', valor: 'Plano de Saúde' } },
         { chave: 'saude.tipo', rotulo: 'Tipo de plano', tipo: TIPO.SELECAO, opcoes: ['Individual', 'Familiar', 'Empresarial', 'Por adesão'], revelaSe: { campo: 'saude.tem', igual: 'Sim' } },
         { chave: 'saude.operadora', rotulo: 'Operadora', tipo: TIPO.TEXTO, revelaSe: { campo: 'saude.tem', igual: 'Sim' } },
         { chave: 'saude.nome', rotulo: 'Nome do plano', tipo: TIPO.TEXTO, revelaSe: { campo: 'saude.tem', igual: 'Sim' } },
@@ -257,7 +257,7 @@ export const SECOES = [
     grupos: [
       { titulo: 'Perfil de Renda', campos: [
         { chave: 'ren.natureza', rotulo: 'Natureza da principal fonte de renda', tipo: TIPO.SELECAO, obrigatorio: true,
-          opcoes: ['Registrado CLT', 'Servidor Público', 'Aposentadoria/Pensão', 'Profissional Liberal/Autônomo', 'Empresário', 'Sem Renda'],
+          opcoes: ['Registrado (CLT)', 'Servidor Público', 'Aposentadoria/Pensão', 'Profissional Liberal/Autônomo', 'Empresário', 'Sem renda'],
           deExame: 'q24', expande: 'Vimos que você é empresário. Vamos entender como a renda sai da empresa?' },
         { chave: 'ren.liquida', rotulo: 'Renda líquida mensal', tipo: TIPO.MOEDA, obrigatorio: true, deExame: 'q25' },
       ]},
@@ -313,7 +313,7 @@ export const SECOES = [
     grupos: [
       { titulo: 'Identificação', campos: [
         { chave: 'pes.estadoCivil', rotulo: 'Estado civil', tipo: TIPO.SELECAO, obrigatorio: true,
-          opcoes: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Separado(a)', 'Viúvo(a)'], deExame: 'q30' },
+          opcoes: ['Solteiro(a)', 'Casado(a)', 'União estável', 'Divorciado(a)', 'Separado(a)', 'Viúvo(a)'], deExame: 'q30' },
         { chave: 'pes.genero', rotulo: 'Gênero', tipo: TIPO.SELECAO, obrigatorio: true,
           opcoes: ['Feminino', 'Masculino', 'Outro', 'Prefiro não declarar'], deExame: 'q31' },
         { chave: 'pes.nascimento', rotulo: 'Data de nascimento', tipo: TIPO.DATA, obrigatorio: true, deExame: 'q32', sensivel: true },
@@ -328,7 +328,7 @@ export const SECOES = [
     grupos: [
       { titulo: 'Autoavaliação', campos: [
         { chave: 'per.autoavaliacao', rotulo: 'Sente que está usando seu dinheiro da melhor forma?', tipo: TIPO.ESCALA,
-          opcoes: ['1-Nada bem', '2-Pouco bem', '3-Neutro', '4-Bem', '5-Muito bem'], obrigatorio: true, deExame: 'q01' },
+          opcoes: ['1 - Nada confiante', '2 - Pouco confiante', '3 - Neutro', '4 - Confiante', '5 - Muito confiante'], obrigatorio: true, deExame: 'q01' },
       ]},
       {
         titulo: 'Perfil de Risco e Comportamento', soConsultor: true,
@@ -336,7 +336,8 @@ export const SECOES = [
         campos: [
           { chave: 'per.disposicaoRisco', rotulo: 'Disposição a risco', tipo: TIPO.SELECAO, opcoes: ['Baixo', 'Médio', 'Alto'], suitability: true },
           { chave: 'per.capacidadeRisco', rotulo: 'Capacidade para risco', tipo: TIPO.SELECAO, opcoes: ['Baixo', 'Médio', 'Alto'], suitability: true },
-          { chave: 'per.relacaoDinheiro', rotulo: 'Relação com o dinheiro', tipo: TIPO.SELECAO, opcoes: ['Gastador', 'Poupador', 'Neutro'] },
+          { chave: 'per.contextoDoGasto', rotulo: 'O que faz o mês variar para mais ou para menos?', tipo: TIPO.AREA,
+            nota: 'Descreve contexto, nunca classifica a pessoa (psicólogo R5: erro fundamental de atribuição).' },
           { chave: 'per.restricaoClasse', rotulo: 'Possui restrição a alguma classe de ativo?', tipo: TIPO.AREA, exemplo: 'Não investe em ações' },
           { chave: 'per.ativoIntocavel', rotulo: 'Possui algum ativo que não deseja se desfazer?', tipo: TIPO.AREA, exemplo: 'Apartamento da família' },
           { chave: 'per.classeVetada', rotulo: 'Classe de ativo que não quer de forma alguma?', tipo: TIPO.AREA, exemplo: 'Criptoativos' },
@@ -373,14 +374,36 @@ export const SECOES = [
   },
 ];
 
+import { SECOES_NOVAS } from './coleta-adicoes.js';
+
+/** Formulário atual + seções sugeridas pelo painel (Rodada 5). */
+export const SECOES = [...SECOES_BASE, ...SECOES_NOVAS];
+
 /* ── Derivados ────────────────────────────────────────────────────────────── */
 
 export const todosOsCampos = () =>
   SECOES.flatMap((s) => s.grupos.flatMap((g) =>
-    (g.repetivel ? [] : g.campos.map((c) => ({ ...c, secaoId: s.id, grupo: g.titulo, vertical: g.vertical || s.vertical })))));
+    g.campos.map((c) => ({
+      ...c, secaoId: s.id, grupo: g.titulo, vertical: g.vertical || s.vertical,
+      escopo: g.repetivel ? 'item' : 'fixo',
+    }))));
+
+/** Só os campos fixos — usado nas contagens de tela. */
+export const camposFixos = () => todosOsCampos().filter((c) => c.escopo === 'fixo');
 
 /** Campos que o exame já respondeu — a base do "expande, não repete". */
 export const camposDoExame = () => todosOsCampos().filter((c) => c.deExame);
+
+/** Resolve o valor que o exame entrega a um campo (via copia | inclui). */
+export function valorDoExame(campo, respostas) {
+  const d = campo.deExame;
+  if (!d || !respostas) return undefined;
+  if (typeof d === 'string') return respostas[d];
+  const r = respostas[d.pergunta];
+  if (r === undefined) return undefined;
+  if (d.via === 'inclui') return (Array.isArray(r) ? r : [r]).includes(d.valor) ? 'Sim' : 'Não';
+  return r;
+}
 
 /** Campos obrigatórios ainda sem resposta = o que falta para a coleta ficar suficiente. */
 export const camposObrigatorios = () => todosOsCampos().filter((c) => c.obrigatorio);
@@ -391,6 +414,6 @@ export const camposSuitability = () => todosOsCampos().filter((c) => c.suitabili
 export const ESTATISTICAS = {
   secoes: SECOES.length,
   gruposRepetiveis: SECOES.flatMap((s) => s.grupos).filter((g) => g.repetivel).length,
-  camposFixos: todosOsCampos().length,
+  camposFixos: camposFixos().length,
   vindosDoExame: camposDoExame().length,
 };

@@ -66,7 +66,7 @@ export default function MinhasInformacoes({ estado, acoes }) {
 
               {sugestao ? (
                 <div className="px-4 py-2.5 rounded-btn bg-peach-100">
-                  <p className="font-ui text-xs text-orange-600">
+                  <p className="font-ui text-xs text-orange-700">
                     Sugestão enviada — {CONSULTOR.primeiroNome} vai confirmar. Entra na pauta da próxima reunião.
                   </p>
                 </div>

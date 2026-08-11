@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SECOES, ESTATISTICAS, camposSuitability, TIPO } from '../../data/coleta.js';
+import { SECOES, ESTATISTICAS, camposSuitability, valorDoExame, TIPO } from '../../data/coleta.js';
 import { RICARDO, CONSULTOR } from '../../data/demo.js';
 import { Icone, Badge, Button } from '../../components/ui.jsx';
 
@@ -14,10 +14,11 @@ const DO_EXAME = {
   q30: 'Casado(a)', q31: 'Masculino', q32: '1972-03-14', q33: 'ricardo@exemplo.com',
 };
 
-const fmt = (v) => {
+/** Formata pelo TIPO do campo — nunca por heurística de tamanho (C9 da R4). */
+const fmt = (v, campo) => {
   if (v === undefined || v === null) return null;
   if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'number' && v > 999) return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  if (campo?.tipo === TIPO.MOEDA) return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
   return String(v);
 };
 
@@ -57,9 +58,9 @@ export default function Coleta() {
       <div className="space-y-3">
         {SECOES.map((s) => {
           const campos = s.grupos.flatMap((g) => (g.repetivel ? [] : g.campos));
-          const doExame = campos.filter((c) => c.deExame && DO_EXAME[c.deExame] !== undefined);
+          const doExame = campos.filter((c) => valorDoExame(c, DO_EXAME) !== undefined);
           const obrig = campos.filter((c) => c.obrigatorio);
-          const obrigOk = obrig.filter((c) => DO_EXAME[c.deExame] !== undefined);
+          const obrigOk = obrig.filter((c) => valorDoExame(c, DO_EXAME) !== undefined);
           const repetiveis = s.grupos.filter((g) => g.repetivel);
           const expandida = aberta === s.id;
 
@@ -106,7 +107,7 @@ export default function Coleta() {
                       ) : (
                         <div className="space-y-2">
                           {g.campos.map((c) => {
-                            const valor = c.deExame ? DO_EXAME[c.deExame] : undefined;
+                            const valor = valorDoExame(c, DO_EXAME);
                             const temValor = valor !== undefined;
                             return (
                               <div key={c.chave}
@@ -119,7 +120,7 @@ export default function Coleta() {
                                     </p>
                                     {temValor ? (
                                       <p className="font-display text-navy-900 text-sm mt-1">
-                                        {fmt(valor)}{c.unidade ? ` ${c.unidade}` : ''}
+                                        {fmt(valor, c)}{c.unidade ? ` ${c.unidade}` : ''}
                                       </p>
                                     ) : (
                                       <p className="font-ui text-xs text-[#8A94A6] italic mt-1">a preencher na reunião</p>
@@ -132,7 +133,7 @@ export default function Coleta() {
                                 </div>
 
                                 {/* O padrão "expande, não repete" — a fala do consultor */}
-                                {c.expande && (
+                                {c.expande && !c.nota && (
                                   <p className="mt-3 px-3 py-2 rounded-btn bg-peach-100 font-body text-xs text-orange-700 leading-relaxed">
                                     <strong>{CONSULTOR.primeiroNome} diz:</strong> “{c.expande}”
                                   </p>

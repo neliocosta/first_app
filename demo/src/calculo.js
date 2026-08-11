@@ -15,11 +15,18 @@ export const PREMISSA = {
   texto: 'cada mês cheio que deixa de entrar adia o objetivo em cerca de 3 meses; para recuperar, diluímos o que faltou ao longo de 12 meses',
 };
 
+/** Banda de tolerância (psicólogo R5): 1% de desvio não pode disparar a mesma
+ *  gramática de um mês zerado — falso positivo destrói a credibilidade do sinal. */
+export const TOLERANCIA = { fracao: 0.10, pisoAbsoluto: 200 };
+
 export function consequenciaDoAporte(real, combinado) {
   if (real === null || real === undefined || combinado <= 0) return null;
   const deficit = Math.max(0, combinado - real);
   if (deficit === 0) {
     return { emDia: true, deficit: 0, mesesAtraso: 0, extraMensal: 0, mesesExtra: 0 };
+  }
+  if (deficit < TOLERANCIA.pisoAbsoluto || deficit / combinado < TOLERANCIA.fracao) {
+    return { emDia: true, quaseEmDia: true, deficit, mesesAtraso: 0, extraMensal: 0, mesesExtra: 0 };
   }
   const mesesAtraso = Math.max(1, Math.round((deficit / combinado) * PREMISSA.mesesPorAporteCheio));
   const extraMensal = Math.round(deficit / PREMISSA.mesesDeRecuperacao / 10) * 10;
