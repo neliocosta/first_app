@@ -75,12 +75,57 @@ pude editar"*) aceita pelo Nélio. Registra quem auditou o relatório antes de p
 Ele participa da **coleta** e acessa o **material de apresentação da consultoria** — a montagem é
 o consultor sozinho. Confirma a regra de visibilidade da spec §3.4.
 
+## As calculadoras da Montagem
+
+São as **11 atuais** do site, mais uma nova e central:
+
+### Calculadora de alocação — patrimônio e sobra de caixa
+
+> "A ideia é mostrar **para onde vai cada centavo do patrimônio financeiro e cada real poupado
+> no mês**." — Nélio
+
+Aloca **duas massas** sobre **quatro destinos**:
+
+| Massa alocada | Destinos |
+|---|---|
+| **Patrimônio financeiro** (o estoque) | **Reserva Financeira** · **Compromissos** · **Liberdade Financeira** · **cada objetivo listado pelo cliente** |
+| **Poupança mensal** (o fluxo) | os mesmos quatro |
+
+**Por que esta calculadora é o centro da tela.** Ela fecha, de uma vez, o bloqueante que o
+Ricardo levantou nas Rodadas 3 e 4 e que eu tinha convertido numa tarefa ("definir com o consultor
+a divisão do aporte mensal"):
+
+> *"Eu pedi para ver a conta dos meus R$ 10.000: quanto vai para a aposentadoria, quanto para a
+> reserva, quanto para o PGBL. O que vocês fizeram foi transformar o meu pedido numa reunião.
+> Isso não é atender, é adiar."*
+
+Com a calculadora, a divisão do aporte deixa de ser promessa e passa a ser **saída de uma tela**.
+O cliente vê o rateio pronto e discute de igual para igual — que era exatamente o pedido dele.
+
+**Encaixes com o que já está modelado:**
+- **Compromissos** já existe como lista repetível na coleta (seção 01, "Compromissos Financeiros").
+- **Reserva Financeira** já tem valor atual e valor ideal coletados (seção 03).
+- **Liberdade Financeira** já é o card secundário da Home do cliente.
+- **Objetivos** já são lista repetível na coleta (seção 01) e já aparecem na linha do tempo.
+
+Ou seja: os quatro destinos **já são entidades do modelo**. Falta o ato de alocar.
+
+**Implicações a rastrear:**
+- O **aporte mensal combinado** (hoje um número único, R$ 10.000) passa a ter uma decomposição
+  por destino. A spec §6 diz "não existe carimbo de aporte por objetivo" — isso continua valendo
+  para o **cliente** (ele informa um número só por mês), mas a **alocação** existe do lado do
+  plano. São coisas diferentes e a spec precisa distinguir as duas.
+- A **cascata de prioridade** (o que fura primeiro quando o mês aperta) é a mesma lista de
+  destinos, ordenada. Provavelmente nasce aqui e não na devolutiva.
+- "Cada centavo" implica que a soma **fecha em 100%** — o que significa que sobra não alocada é
+  um estado visível, não um resto silencioso.
+
 ## Ainda em aberto
 
 - O **"material de apresentação da consultoria"** citado em (5) é um artefato que não está
   modelado em lugar nenhum. O que é, quem produz, onde o cliente acessa?
-- Quais são as **calculadoras** que a tela oferece (as 11 do site atual? outras?).
-- O campo "Auditado por:" é opcional ou trava a publicação?
+  → *Nélio: fica em aberto por ora; ajustar os outros pontos antes.*
+- ✅ **"Auditado por:" é opcional** — não trava a publicação.
 
 ## Impacto no que já está construído
 
