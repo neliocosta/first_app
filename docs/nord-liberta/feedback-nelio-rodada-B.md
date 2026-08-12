@@ -136,3 +136,125 @@ obrigatório e agrupamento por pessoa.
 - A lista fechada de naturezas de renda (⚠ LACUNA desde o lote A).
 - Como exatamente as duas ferramentas "se combinam na versão final" (B5) — é
   uma terceira tela, é a Projeção consumindo o Orçamento, ou é um relatório?
+
+---
+
+# Lote B · parte 2 — o roteiro canônico
+
+## B6 · Cadastro de renda é modal; na régua, a renda é UMA variável
+
+O problema de layout que o UX levantou **não existe**, porque o momento de
+cadastrar é outro:
+
+1. "Adicionar nova fonte de renda" → abre **janela modal**
+2. Preenche todos os dados → **Salvar**
+3. Aquele valor passa a compor a **renda da família — uma única variável**
+4. "Detalhar rendas" lista o nome de cada fonte, e cada uma é clicável para ver
+   o detalhe
+
+Doze rendas cadastradas continuam sendo **uma linha** na linha do tempo. A
+faixa-por-renda que eu tinha proposto some.
+
+## B7 · A terceira categoria chama-se **Futuro e Sonhos**
+
+Decidido. "Investimentos" sai.
+
+## B8 · O roteiro, passo a passo, na voz do Nélio
+
+### Etapa 1 · Orçamento detalhado — 24 meses, estrutura de planilha
+
+Projetar receitas e despesas em detalhe nos próximos 24 meses, com valores
+detalhados de gastos pontuais (presentes de Natal, seguro de carro, etc.).
+
+As **micro-categorias expandem e colapsam** dentro das três macro:
+**despesas fixas · ajustáveis · Futuro e Sonhos**.
+
+### Etapa 2 · Mudanças de longo prazo, além dos 24 meses
+
+> *"No terceiro ano eu vou passar a ter mais uma despesa de R$ 2.000 com a escola
+> do meu filho, e a minha receita vai aumentar mais R$ 5.000."*
+>
+> *"No sexto ano, a minha receita aumenta mais R$ 10 mil e eu acrescento a
+> despesa de R$ 4 mil do financiamento da minha casa."*
+>
+> *"E aí, por conveniência e preguiça, eu simplesmente digo que a partir do
+> sétimo ano as minhas receitas e despesas vão ficar iguais e o meu valor de
+> poupança vai ficar igual."*
+
+A regra de continuidade **invocada pelo próprio usuário**, e nas palavras dele:
+*por conveniência e preguiça*. Confirma o diagnóstico do psicólogo — ela é uma
+alavanca de *ability*, e é assim que deve ser vendida na tela.
+
+### Etapa 3 · Patrimônio — listar e repartir
+
+Lista **bens · participações acionárias · patrimônio financeiro**.
+
+O financeiro de **R$ 500 mil** é repartido:
+
+| Caixinha | Valor |
+|---|---|
+| Reserva | R$ 100.000 |
+| Compromissos | R$ 30.000 |
+| Objetivo: compra da casa | R$ 170.000 |
+| Liberdade financeira | R$ 200.000 |
+| **Total** | **R$ 500.000** ✓ |
+
+### Etapa 4 · Eventos financeiros da vida
+
+| Quando | O quê | Observação |
+|---|---|---|
+| 7 meses | utilização do **valor atualizado** dos R$ 30 mil de compromissos | saque do **saldo** da caixinha, não de um número cravado |
+| 24 meses | recebimento de **R$ 150 mil de um carro** | conversão de bem → financeiro |
+| 4 anos | resgatar **R$ 230 mil** para dar entrada na casa | sai da caixinha "compra da casa" |
+| ano 10 ao 15 | resgates mensais de **R$ 5.000** da liberdade financeira | custeio do intercâmbio do filho |
+
+### Etapa 5 · Rentabilidade por caixinha
+
+Alvo configurável por caixinha, flutuando de **3% a 9% de retorno real líquido**.
+
+### Etapa 6 · Perpetuidade
+
+Em **2050**, começar retiradas de perpetuidade — saque da rentabilidade
+mantendo o principal — considerando retorno real líquido de **0,40% ao mês**.
+
+### Etapa 7 · A tela da evolução patrimonial
+
+Com tudo pronto, **uma única tela** onde dá para:
+
+- navegar pelos próximos eventos
+- enxergar tudo o que vai acontecer
+- clicar em algum desses eventos ou detalhamento
+- fazer alguma alteração
+
+**Em cima:** a evolução do patrimônio.
+**Embaixo:** os valores de aportes ou saques realizados, levando em conta o
+orçamento projetado.
+
+---
+
+## O que o roteiro decide, e que estava em aberto
+
+**1. "Real líquido" responde a pergunta do CFP.** Ele cobrou que a spec não
+dizia se as taxas eram brutas ou líquidas de IR. O Nélio disse **"retorno real
+líquido"** duas vezes, para as caixinhas e para a perpetuidade. Decidido: as
+taxas configuradas já são líquidas de imposto e de inflação.
+
+**2. Um evento novo que o motor ainda não tem: saque do SALDO.**
+*"a utilização do valor atualizado daqueles 30 mil"* não é um saque de R$ 30.000
+— é um saque **do que a caixinha valer naquele mês**. O motor tem `esvazia: true`
+no `saquePontual`, que é exatamente isso, mas a semântica precisa ficar explícita
+na interface: *"usar o que estiver na caixinha"* × *"usar R$ X"*.
+
+**3. Duas unidades para a mesma coisa.** As caixinhas são configuradas em
+**% ao ano** (3% a 9%); a perpetuidade, em **% ao mês** (0,40%). Convertendo,
+0,40% a.m. = **4,91% a.a.**, que cai dentro da faixa — não há contradição, mas a
+tela precisa de uma unidade só, ou de conversão visível ao lado.
+
+**4. A faixa de 3% a 9% é uma trava, e resolve meio conflito com o CFP.**
+Ele exigiu que a rentabilidade viesse de política de investimento versionada e
+travada por suitability. O Nélio deu a faixa mas não a amarração ao perfil.
+⚠ Continua em aberto: **um cliente conservador pode configurar 9%?**
+
+**5. O carro entra como bem que vira dinheiro.** Mesma mecânica da ótica do
+Ricardo — uma `transferencia` de `bens` para `financeiro`. Confirma que a camada
+de bens precisa ser item a item, não um bloco só.
