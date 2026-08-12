@@ -1,7 +1,10 @@
 # Projeção de Vida — especificação v3
 
-> **Status:** proposta reescrita. Substitui `projecao-de-vida-v2.md`, que fechou **0/6** na
-> rodada 07. Vai à **rodada 08** do Gauntlet Loop antes de virar código.
+> **Status:** submetida à rodada 08 e **fechou 0/6** — ver `../gauntlet/rodada-08.md`.
+> Substitui `projecao-de-vida-v2.md`, que fechou 0/6 na rodada 07. **Não implementar a partir
+> deste documento:** sete convergências independentes e 28 bloqueantes estão registrados no log
+> da rodada 08, e a próxima entrada é `projecao-de-vida-v4.md`. Este arquivo fica como objeto
+> de registro da rodada.
 >
 > **Governança:** subordinada a `../00-contexto-v5.md` (princípios invioláveis §9) e à
 > especificação selada `especificacao-v3.md` (5/5 na rodada 3). Onde esta ferramenta muda a
