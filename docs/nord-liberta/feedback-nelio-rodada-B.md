@@ -318,3 +318,79 @@ aparecer — caixinha, perpetuidade, teste de estresse, legenda do gráfico.
 
 Entrada de dado: **sempre anual**. A equivalência mensal é derivada, nunca
 digitada — senão viram duas fontes da verdade para o mesmo número.
+
+---
+
+## B11 · A taxa é travada pelo suitability — e o que fazer com quem não o preencheu
+
+> *"Não. A ideia é que, de fato, o cliente conservador tem uma trava de no máximo
+> 7% de retorno real líquido por ano. Mais do que isso, ele é bloqueado pelo
+> suitability."*
+
+### Teto por perfil
+
+| Perfil | Teto de retorno real líquido |
+|---|---|
+| Conservador | **7% a.a.** |
+| Moderado | ⚠ LACUNA |
+| Arrojado | ⚠ LACUNA |
+
+A faixa configurável segue sendo 3% a 9% (B8, etapa 5); o perfil **corta o topo
+dela**.
+
+### O caso real: cliente sem suitability preenchido
+
+> *"A gente sabe que muitos clientes vão usar a plataforma sem terem o
+> suitability preenchido. Vale a gente pensar em um alerta na hora da
+> configuração da taxa (…) de que essa é uma informação valiosa. Ele pode ou
+> assumir o perfil de risco dele ou responder ao nosso questionário."*
+
+Dois caminhos oferecidos **no momento em que a taxa é configurada**:
+
+1. **Assumir o perfil** — o cliente declara qual acha que é o seu.
+2. **Responder ao questionário de suitability** — a ferramenta oficial.
+
+### ⚠ Os dois caminhos NÃO são a mesma coisa, e o dado precisa saber disso
+
+Perfil **autodeclarado** não é suitability no sentido da Res. CVM 30 — é uma
+premissa de planejamento que o cliente assumiu. Perfil vindo do **questionário**
+é o instrumento regulatório.
+
+Se os dois gravarem no mesmo campo, a plataforma passa a afirmar que tem
+suitability de clientes que só chutaram o próprio perfil. Em auditoria isso é
+pior do que não ter nada — foi exatamente a crítica que o CFP fez na rodada 05
+sobre o banner que atestava um controle que não operava.
+
+**Modelo exigido:**
+
+```
+PerfilDeRisco {
+  perfil: conservador | moderado | arrojado,
+  origem: 'questionario' | 'autodeclarado',
+  respondidoEm, versaoQuestionario,
+  valeParaSuitability: boolean   // true só quando origem = 'questionario'
+}
+```
+
+E a consequência precisa aparecer na tela: com perfil autodeclarado, a taxa é
+travada do mesmo jeito (proteção do cliente), mas os **capítulos que prescrevem
+produto de investimento continuam bloqueados** — porque a trava fiduciária que
+já existe no demo (rodada 05, `modulosPublicaveis`) exige suitability de verdade,
+não um chute.
+
+### O que isso confirma
+
+A trava de suitability deixa de ter **uma** superfície e passa a ter **duas**:
+
+| Superfície | O que trava | Desde |
+|---|---|---|
+| Publicação de capítulo da devolutiva | módulo que prescreve produto (PGBL) | rodada 05 |
+| **Configuração da taxa da caixinha** | **teto de retorno real** | **agora** |
+
+## B12 · O questionário de suitability é outra ferramenta a incorporar
+
+> *"Que eu não vou te enviar agora. A gente também tem. Ele é super extenso, mas
+> é uma das outras ferramentas que a gente tem que incorporar na plataforma."*
+
+Entra na fila junto com as 7 calculadoras (A14). **⚠ LACUNA:** perguntas,
+pontuação e mapeamento para os três perfis.
