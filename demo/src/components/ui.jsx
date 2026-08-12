@@ -89,9 +89,18 @@ import {
   LogOut, Bell, Receipt, CreditCard, GraduationCap, Map, FileText, Check, ChevronRight,
   ChevronLeft, Play, MessageCircle, AlertCircle, Sparkles, CalendarDays, ArrowLeft, RotateCcw,
   CornerDownLeft, Info, Lock, Target,
+  CirclePlus, CircleMinus, Repeat, ArrowUpFromLine, Infinity as InfinityIcon, BatteryLow,
+  Percent, ArrowLeftRight, ZoomIn, ZoomOut, Move, Layers, Landmark, Building2, Coins,
+  Undo2, SlidersHorizontal, ChevronDown, Pointer, Maximize2,
 } from 'lucide-react';
 
 const ICONES = {
+  'circle-plus': CirclePlus, 'circle-minus': CircleMinus, repeat: Repeat,
+  'arrow-up-from-line': ArrowUpFromLine, infinity: InfinityIcon, 'battery-low': BatteryLow,
+  percent: Percent, 'arrow-left-right': ArrowLeftRight, 'zoom-in': ZoomIn, 'zoom-out': ZoomOut,
+  move: Move, layers: Layers, landmark: Landmark, building: Building2, coins: Coins,
+  undo: Undo2, sliders: SlidersHorizontal, 'chevron-down': ChevronDown, pointer: Pointer,
+  maximize: Maximize2,
   wallet: Wallet, shield: Shield, home: Home, 'piggy-bank': PiggyBank, 'trending-up': TrendingUp,
   folder: Folder, 'bar-chart-2': BarChart2, user: User, users: Users, settings: Settings,
   'log-out': LogOut, bell: Bell, receipt: Receipt, 'credit-card': CreditCard,

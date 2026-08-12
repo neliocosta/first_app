@@ -9,6 +9,7 @@ import Plano from './screens/cliente/Plano.jsx';
 import Educacao from './screens/cliente/Educacao.jsx';
 import MinhasInformacoes from './screens/cliente/MinhasInformacoes.jsx';
 import MinhaJornada from './screens/cliente/MinhaJornada.jsx';
+import Evolucao from './screens/Evolucao.jsx';
 import Consultor from './screens/consultor/Consultor.jsx';
 
 const ABAS = [
@@ -16,6 +17,7 @@ const ABAS = [
   { id: 'plano', label: 'Plano', icone: 'folder' },
   { id: 'educacao', label: 'Educação', icone: 'graduation-cap' },
   { id: 'informacoes', label: 'Minhas informações', icone: 'file-text' },
+  { id: 'evolucao', label: 'Patrimônio', icone: 'trending-up' },
   { id: 'jornada', label: 'Minha jornada', icone: 'map' },
 ];
 
@@ -48,14 +50,15 @@ function BarraDemo({ estado, trocarAtor, reiniciar, pularParaDevolutiva }) {
 }
 
 /** Shell da área do cliente: navy full-bleed + bottom nav discreta (decisão do Nélio). */
-function ShellCliente({ estado, navegar, children, semNav = false }) {
+function ShellCliente({ estado, navegar, children, semNav = false, largo = false }) {
+  const faixa = largo ? 'max-w-6xl' : 'max-w-2xl';
   return (
     <div className="min-h-screen bg-navy-950 pt-11">
-      <header className="px-5 pt-6 pb-2 flex items-center justify-between max-w-2xl mx-auto">
+      <header className={`px-5 pt-6 pb-2 flex items-center justify-between ${faixa} mx-auto`}>
         <Marca size={26} invertido />
         <SeloDemo />
       </header>
-      <main className={`max-w-2xl mx-auto px-5 ${semNav ? 'pb-12' : 'pb-28'}`}>{children}</main>
+      <main className={`${faixa} mx-auto px-5 ${semNav ? 'pb-12' : 'pb-28'}`}>{children}</main>
 
       {!semNav && (
         <nav className="fixed bottom-0 inset-x-0 bg-[#0F1926]/95 backdrop-blur border-t border-white/10 z-40">
@@ -110,14 +113,14 @@ export default function App() {
 
   const telas = {
     inicio: Inicio, plano: Plano, educacao: Educacao,
-    informacoes: MinhasInformacoes, jornada: MinhaJornada,
+    informacoes: MinhasInformacoes, jornada: MinhaJornada, evolucao: Evolucao,
   };
   const Tela = telas[estado.telaCliente] || Inicio;
 
   return (
     <>
       {barra}
-      <ShellCliente estado={estado} navegar={acoesCliente.navegar}>
+      <ShellCliente estado={estado} navegar={acoesCliente.navegar} largo={estado.telaCliente === 'evolucao'}>
         <Tela estado={estado} acoes={acoesCliente} />
       </ShellCliente>
       {aviso}
