@@ -1,0 +1,373 @@
+ESPECIFICAÇÃO FUNCIONAL — ORÇAMENTO FAMILIAR
+Ferramenta de Planejamento Financeiro
+
+1. OBJETIVO
+
+Criar um módulo de Orçamento Familiar que permita ao cliente estruturar sua renda, definir uma distribuição macro, detalhar suas despesas, projetar o orçamento pelos próximos 24 meses e comparar o planejado com o realizado.
+
+O orçamento deve funcionar como ferramenta de planejamento financeiro, e não apenas como controle de gastos.
+
+Fluxo principal:
+Renda → Orçamento Macro → Orçamento Micro → Orçamento Expandido de 24 meses → Orçado x Realizado
+
+2. CONSOLIDAÇÃO DA RENDA
+
+Antes do orçamento, o sistema deve trabalhar com a renda anual total do cliente, considerando todas as entradas relevantes, como salários, pró-labore, distribuição de lucros, bônus, comissões e outras receitas.
+
+O cliente deve escolher a base utilizada para o orçamento:
+
+a) Apenas fluxos mensais
+Considera somente as entradas mensais recorrentes.
+
+b) Renda anual mensalizada
+Considera toda a renda anual e divide por 12. Esta opção deve ser apresentada como recomendada.
+
+Renda mensal média = renda anual total / 12.
+
+3. ORÇAMENTO MACRO
+
+O orçamento macro divide a renda mensal de referência em três grandes categorias:
+
+- Gastos Fixos
+- Gastos Ajustáveis
+- Futuro e Sonhos
+
+Sugestão inicial:
+- Fixos: 50%
+- Ajustáveis: 30%
+- Futuro e Sonhos: 20%
+
+O cliente pode alterar os percentuais, mas a soma deve ser sempre 100%.
+
+Referências de saúde financeira:
+- Fixos: idealmente até 50%
+- Ajustáveis: idealmente até 30%
+- Futuro e Sonhos: idealmente pelo menos 20%
+
+Quando os parâmetros forem ultrapassados, o sistema deve apresentar um alerta educativo, sem bloquear a escolha.
+
+A interface deve apresentar percentuais e valores em moeda e permitir manipulação simples, preferencialmente por sliders e/ou campos numéricos. Um gráfico de distribuição pode complementar a visualização.
+
+4. ORÇAMENTO MICRO
+
+Depois de definir o macro, o cliente detalha cada categoria por subcategorias.
+
+Regra fundamental:
+A soma das subcategorias de cada categoria macro não pode ultrapassar o respectivo limite macro.
+
+Exemplo:
+Fixos = R$ 1.000
+Aluguel = R$ 450
+Condomínio = R$ 350
+Saldo disponível = R$ 200
+
+A tela deve mostrar:
+- limite da categoria
+- total já alocado
+- saldo restante
+- percentual utilizado
+
+Se o usuário tentar ultrapassar o limite, o sistema deve sinalizar e impedir a gravação de uma configuração inválida.
+
+5. SUBCATEGORIAS — GASTOS AJUSTÁVEIS
+
+- Alimentação
+- Lazer
+- Mercado
+- Transporte Público
+- Estacionamento
+- Combustível
+- Transportes de Aplicativo
+- Assinaturas
+- Plano de TV a Cabo
+- Delivery
+- Roupas/Sapatos
+- Compras
+- Presentes
+- Serviços de Streamings
+- Higiene Pessoal
+- Estética
+- Itens de Casa
+- Eletrodomésticos
+- Hobbies
+- Remédios Pontuais
+- Cafés
+- Jóias e Acessórios
+- Esportes
+- Academia
+- Jogos
+- Outra (Detalhar)
+
+6. SUBCATEGORIAS — GASTOS FIXOS
+
+- Aluguel
+- Condomínio
+- IPTU
+- Financiamento Imobiliário
+- Financiamento Automotivo
+- Empregados Domésticos
+- Luz
+- Água
+- Gás
+- Escola
+- Faculdade
+- Cursos de Idiomas
+- Outros Cursos
+- Pensão
+- Plano de Saúde
+- Remédios Fixos
+- Seguro de Carro
+- Seguro de Vida
+- Seguro Residencial
+- Outras Despesas Familiares
+- Pet
+- Telefone e Celular
+- Internet
+- Serviços Obrigatórios (Contador, etc.)
+- Mesada
+- Creche
+- Doações
+- Contribuições Religiosas
+- Parcelas Empréstimo
+- Outra (Detalhar)
+
+A categoria Futuro e Sonhos também faz parte do orçamento macro. Seu detalhamento micro deverá ser especificado posteriormente.
+
+7. PERIODICIDADE DO ORÇAMENTO MICRO
+
+Para despesas cuja estimativa mensal seja difícil, o cliente pode informar o valor em diferentes bases:
+
+- Mensal
+- Semanal
+- Diário, considerando dias úteis
+- Anual
+
+Fatores de conversão:
+- 1 mês = 4,3 semanas
+- 1 mês = 22 dias úteis
+- 1 ano = 12 meses
+
+Conversões:
+- Diário útil → mensal: valor × 22
+- Semanal → mensal: valor × 4,3
+- Anual → mensal: valor ÷ 12
+
+Exemplo:
+Alimentação = R$ 40 por dia útil
+Valor mensal equivalente = R$ 880.
+
+A interface deve mostrar tanto o valor informado quanto o valor equivalente na base do orçamento.
+
+8. ORÇAMENTO EXPANDIDO — 24 MESES
+
+Depois do orçamento macro e micro, o sistema deve permitir expandir o planejamento para os próximos 24 meses.
+
+A visão deve apresentar uma linha do tempo mensal com, no mínimo:
+- Orçado
+- Realizado
+- Diferença
+
+O orçamento recorrente é derivado do orçamento micro.
+
+Além das despesas recorrentes, o usuário poderá incluir eventos financeiros específicos que alteram o fluxo de determinado mês.
+
+9. DESPESAS PONTUAIS
+
+O usuário pode cadastrar despesas que acontecem apenas em determinado mês.
+
+Exemplo:
+IPVA pago à vista em janeiro.
+
+A despesa deve:
+- aparecer apenas no mês definido;
+- entrar na projeção daquele mês;
+- não alterar automaticamente o orçamento recorrente dos demais meses.
+
+10. DESPESAS PARCELADAS
+
+O usuário pode cadastrar uma despesa parcelada.
+
+Exemplo:
+Viagem de R$ 5.000 em 5 parcelas.
+
+O sistema deve distribuir automaticamente as parcelas a partir do mês inicial informado e retirar a despesa dos meses posteriores ao término das parcelas.
+
+Cada despesa parcelada deve permitir, no mínimo:
+- descrição;
+- valor total ou valor da parcela;
+- quantidade de parcelas;
+- mês de início;
+- categoria macro;
+- subcategoria.
+
+11. REALIZADO
+
+O realizado pode ser alimentado de duas maneiras:
+
+a) Manualmente
+O usuário registra a transação.
+
+b) Open Finance
+O sistema importa as transações das instituições financeiras conectadas.
+
+Uma transação realizada deve possuir, no mínimo:
+- data;
+- descrição;
+- valor;
+- instituição, quando aplicável;
+- categoria macro;
+- subcategoria.
+
+12. CLASSIFICAÇÃO DE TRANSAÇÕES
+
+Cada despesa mapeada deve possuir uma sugestão de:
+- categoria macro: Fixos, Ajustáveis ou Futuro;
+- subcategoria.
+
+O sistema pode sugerir a classificação com base na descrição da transação.
+
+Exemplos:
+Uber → Ajustáveis → Transportes de Aplicativo
+iFood → Ajustáveis → Delivery
+Shell → Ajustáveis → Combustível
+SmartFit → Ajustáveis → Academia
+Droga Raia → Ajustáveis → Remédios Pontuais
+Seguro → Fixos → Seguro correspondente
+
+O usuário deve poder alterar a classificação sugerida.
+
+Correções feitas pelo usuário podem ser utilizadas para melhorar classificações futuras.
+
+13. COMPARAÇÃO ORÇADO X REALIZADO
+
+Para cada mês, calcular:
+Diferença = Orçado - Realizado
+
+A interface deve permitir identificar rapidamente se o cliente ficou:
+- dentro do orçamento;
+- acima do orçamento;
+- abaixo do orçamento.
+
+Também deve ser possível abrir o mês e visualizar o detalhamento das despesas.
+
+14. VISÃO MENSAL
+
+Ao acessar um mês, o usuário deve conseguir visualizar as despesas agrupadas por macro e subcategoria.
+
+Exemplo:
+Janeiro
+Fixos
+- Plano de Saúde — R$ X
+- Aluguel — R$ X
+Ajustáveis
+- Alimentação — R$ X
+- Delivery — R$ X
+Eventos
+- IPVA — R$ X
+
+15. REQUISITOS DE UX
+
+A experiência deve ser simples para usuários não técnicos, mas transmitir a percepção de uma ferramenta profissional de planejamento financeiro.
+
+Princípios:
+- foco em planejamento, não em simples registro de despesas;
+- visual limpo e organizado;
+- linguagem clara;
+- valores em reais;
+- feedback imediato dos cálculos;
+- destaque para limites e saldos;
+- visualização temporal dos próximos 24 meses;
+- facilidade para editar classificações;
+- evitar aparência de planilha complexa ou aplicativo bancário.
+
+Principais componentes esperados:
+- cards de categorias;
+- barras de progresso;
+- gráficos de distribuição;
+- sliders/campos para percentuais;
+- indicadores de limite utilizado;
+- timeline mensal;
+- comparação Orçado x Realizado;
+- detalhamento por mês;
+- modal/formulário para despesas pontuais e parceladas.
+
+16. PRINCIPAIS TELAS
+
+1. Consolidação/seleção da base de renda
+2. Definição do Orçamento Macro
+3. Detalhamento do Orçamento Micro
+4. Resumo do orçamento
+5. Visão Expandida de 24 meses
+6. Detalhamento de um mês
+7. Cadastro de despesa pontual
+8. Cadastro de despesa parcelada
+9. Cadastro/edição de realizado
+10. Classificação e revisão de transações importadas
+
+17. MODELO CONCEITUAL DE DADOS
+
+Orçamento Macro
+- renda/base mensal
+- modo de cálculo
+- percentual e valor de Fixos
+- percentual e valor de Ajustáveis
+- percentual e valor de Futuro e Sonhos
+
+Orçamento Micro
+- categoria macro
+- subcategoria
+- valor informado
+- periodicidade
+- valor mensal equivalente
+
+Despesa Pontual
+- descrição
+- valor
+- mês/data
+- macro
+- subcategoria
+
+Despesa Parcelada
+- descrição
+- valor total
+- valor da parcela
+- número de parcelas
+- mês inicial
+- macro
+- subcategoria
+
+Transação Realizada
+- data
+- descrição
+- valor
+- instituição
+- macro
+- subcategoria
+- origem (manual/Open Finance)
+
+18. REGRAS ESSENCIAIS
+
+- O orçamento macro deve totalizar 100%.
+- Subcategorias não podem ultrapassar o limite de sua categoria macro.
+- Valores informados em diferentes periodicidades devem ser convertidos para a base mensal.
+- O horizonte expandido deve contemplar 24 meses.
+- Despesas pontuais afetam somente o período em que ocorrem.
+- Parcelamentos afetam somente os meses correspondentes às parcelas.
+- O realizado pode ser manual ou importado via Open Finance.
+- Transações devem poder ser classificadas em macro e micro.
+- O usuário deve poder corrigir classificações sugeridas.
+- O sistema deve preservar a distinção entre orçado recorrente, eventos planejados e realizado.
+
+19. RESULTADO ESPERADO
+
+Ao concluir o processo, o cliente terá:
+- uma visão estruturada de sua renda;
+- uma distribuição macro de sua renda;
+- um orçamento micro detalhado;
+- uma projeção de 24 meses;
+- despesas pontuais e parceladas incorporadas ao planejamento;
+- acompanhamento do realizado;
+- comparação entre planejamento e execução;
+- possibilidade de alimentar o realizado manualmente ou via Open Finance.
+
+A funcionalidade deve transformar o orçamento em uma ferramenta contínua de planejamento financeiro, capaz de conectar a situação atual do cliente com sua evolução financeira nos próximos 24 meses.
