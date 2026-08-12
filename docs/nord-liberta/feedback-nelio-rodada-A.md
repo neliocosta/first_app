@@ -109,3 +109,103 @@ Nord já usa hoje).
   não é só mudar a tela.
 - A11 muda o `Resultado.jsx` e possivelmente a metodologia do Score
   (⚠ LACUNA: as fórmulas dos 5 pilares nunca foram passadas).
+
+---
+
+# Lote A · item 2 — A HOME (o "cockpit") como destino pós-exame
+
+## A12 · Concluir o exame não pode levar a um beco
+
+Ao terminar o exame, o cliente **ainda não tem o planejamento feito** — e mesmo
+assim precisa ter para onde ir. Ele vai para a **Home / cockpit dele**: a tela
+por onde navega todo o planejamento de vida.
+
+A Home é um dos elementos que ainda precisam ser desenhados.
+
+## A13 · O que a Home dá acesso
+
+1. **Tutorial** de como navegar na ferramenta
+2. **Refazer ou atualizar o exame** de saúde financeira, e **ver a evolução do
+   score ao longo do tempo**
+3. **Tarefas** — ver as suas e registrar novas
+4. **Reuniões** — resumo das já realizadas e/ou agendar novas
+5. **Trilha de educação financeira / quizzes**
+6. **Escalada financeira**
+7. **Calculadoras financeiras** (lista abaixo)
+8. **Séries de investimento da Nord** — Nord Alocação · Renda Fixa Pro ·
+   Nord Fundos · O Investidor de Valor · Nord Dividendos
+9. **Suporte por WhatsApp**
+10. **Meu Orçamento**
+11. **Meu Planejamento Patrimonial**
+12. **Meus Objetivos**
+
+## A14 · Calculadoras existentes hoje
+
+| Calculadora |
+|---|
+| Reserva Ideal |
+| Liberdade Financeira |
+| Patrimônio Ideal |
+| Imposto de Renda |
+| Fase da Vida Financeira |
+| Valor/hora de Trabalho |
+| Gestão de Riscos |
+
+> As calculadoras ainda estão sendo organizadas para trazer para dentro da
+> ferramenta. **⚠ LACUNA:** fórmulas, entradas e saídas de cada uma.
+
+---
+
+## Implicações estruturais deste item (registrar, decidir depois)
+
+**1. Muda a máquina de estados da especificação (§3.1).**
+Hoje `exameConcluido → coletaEmAndamento` tem como gatilho o contrato assinado,
+e não há nada definido para o cliente fazer entre uma coisa e outra. Com a Home,
+`exameConcluido` deixa de ser um estado de espera e passa a ser um estado
+**habitável**. Precisa ficar claro o que da Home está disponível antes do
+contrato e o que só abre depois — senão a fronteira comercial some.
+
+**2. Doze destinos não cabem em seis abas.**
+A bottom nav já está com seis (Início · Plano · Educação · Minhas informações ·
+Patrimônio · Minha jornada) e o próprio painel de UX já apontou que é uma a
+mais que o teto usável. A decisão original de navegação foi **"híbrido: hub +
+bottom nav"** — a Home é justamente o hub, e a bottom nav precisa encolher para
+o punhado de coisas de uso diário.
+
+**3. Boa parte já existe com outro nome.** Antes de desenhar do zero, mapear:
+
+| Item da Home | O que já existe |
+|---|---|
+| Tarefas | tela **Plano** |
+| Trilha de educação / quizzes | tela **Educação** |
+| Escalada financeira | tela **Minha jornada** |
+| Meu Planejamento Patrimonial | tela **Patrimônio** (evolução patrimonial) |
+| Meu Orçamento | o fluxo de caixa **dentro** da tela Patrimônio |
+| Meus Objetivos | espalhado hoje entre Minha jornada e Plano — **não tem casa** |
+| Reuniões | **não existe** |
+| Tutorial | **não existe** |
+| Evolução do score | **não existe** (exige histórico) |
+| Calculadoras | **não existem** |
+| Séries de investimento | **não existem** |
+| Suporte por WhatsApp | existe como mock da tela de conversa |
+
+**4. "Meu Orçamento" separado de "Meu Planejamento Patrimonial" contradiz o que
+foi construído.** A ferramenta de evolução patrimonial nasceu justamente da sua
+frase *"as duas ferramentas acabam andando juntas"* — orçamento e patrimônio na
+mesma régua de tempo. Se a Home os separa em duas portas, ou são duas entradas
+para a mesma tela (com foco diferente), ou a decisão de acoplar precisa ser
+revista. **Decisão sua.**
+
+**5. Evolução do score ao longo do tempo exige histórico.**
+É a primeira funcionalidade do produto que depende de série temporal do
+comportamento, não de projeção. Vale fixar a regra agora, antes de existir dado:
+**período sem exame refeito é lacuna, nunca zero, nunca linha reta interpolada.**
+
+**6. As séries de investimento são de outra natureza.**
+Nord Alocação, Renda Fixa Pro, Fundos, Investidor de Valor e Dividendos são
+produtos de conteúdo/recomendação, não ferramentas de planejamento. Colocá-las
+na Home do planejamento é decisão comercial legítima, mas cria uma superfície
+onde o painel vai bater: o CFP já levantou trava de suitability, e recomendação
+de produto dentro da tela de planejamento é exatamente o ponto sensível da
+Res. CVM 30. **Precisa de posição explícita sua sobre como elas aparecem** —
+vitrine, atalho, ou integradas ao plano.
