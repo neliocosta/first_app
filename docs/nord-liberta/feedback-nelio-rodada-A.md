@@ -209,3 +209,71 @@ onde o painel vai bater: o CFP já levantou trava de suitability, e recomendaç�
 de produto dentro da tela de planejamento é exatamente o ponto sensível da
 Res. CVM 30. **Precisa de posição explícita sua sobre como elas aparecem** —
 vitrine, atalho, ou integradas ao plano.
+
+---
+
+# Lote A · item 3 — A Projeção de Vida (lote ENCERRADO aqui)
+
+> Especificação derivada deste item: `especificacao/projecao-de-vida-v2.md`
+
+## A15 · A ferramenta chegou pronta — falta a sequência de preenchimento
+
+A entrega da rodada 06 veio com todos os itens preenchidos. Falta a **sequência
+lógica** pela qual o cliente, ou o consultor junto com o cliente, constrói aquilo.
+
+## A16 · Especificação anterior de orçamento — ⚠ NÃO INCORPORADA
+
+Link compartilhado: `chatgpt.com/share/6a7cd2c1-77a8-83e9-a12b-1aa65477d235`
+**Bloqueado pelo proxy de egresso desta sessão.** Precisa ser colado.
+
+## A17 · A sequência da Projeção de Vida
+
+> *"provavelmente vai ser a ferramenta mais interessante de todas da plataforma
+> e vai ser a espinha dorsal do que a gente entrega"*
+
+1. **Fluxo de caixa dos próximos 12 meses com bastante precisão** — puxando
+   cartão de crédito, contas próximas etc.
+2. **Orçamento macro**, chutando valores.
+3. **Eventos de mudança do orçamento familiar** — novo emprego, aumento de custo
+   pelo nascimento do filho, redução por quitar a parcela do carro.
+4. **Eventos de mudança de patrimônio** — comprar a casa em 2 anos, sacar
+   R$ 50 mil em 3 anos, sacar R$ 150 mil em 10 anos.
+
+Com isso, ficam desenhados os próximos 80–90 anos do orçamento da família.
+
+## A18 · Regra de continuidade
+
+> *"Se um determinado período não foi especificado uma mudança, ele simplesmente
+> vai repetindo a última proposta de receitas e despesas e sobra de caixa ou
+> déficit de caixa."*
+
+Inverte o modelo: o orçamento é uma lista de **mudanças**, não de janelas.
+
+## A19 · Orçamento FAMILIAR com múltiplas rendas
+
+Várias composições de renda, e uma mesma pessoa pode ter várias. Exemplo dado:
+marido com CLT + aluguéis + aulas trimestrais; esposa com a empresa + eventos
+semestrais.
+
+- Cada renda é **ativa** ou **passiva**.
+- Renda **ativa** exige a **natureza**: Registrado (CLT), Profissional Liberal,
+  Empresário, Estagiário, etc.
+
+⚠ LACUNA: lista fechada das naturezas e o que cada uma dispara no plano.
+
+## A20 · Entrega da ferramenta: tela cheia, navegação de editor de vídeo
+
+- **Tela cheia**, fora do shell com bottom nav.
+- Navegação como editor de vídeo: zoom in, zoom out, arrastar para a direita e
+  para a esquerda.
+- **Botão de visão com três estados**: `vida toda` · `próximos 10 anos` ·
+  `próximos 2 anos`.
+
+## A21 · Processo
+
+Trabalho caprichado **antes** de desenvolver, rodando o Gauntlet Loop, com as
+avaliações do profissional de UX incluídas.
+
+---
+
+**Status do lote: ENCERRADO.** O Nélio volta aos outros elementos depois.
