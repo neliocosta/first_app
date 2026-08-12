@@ -509,3 +509,28 @@ caixinha configurada a 7% quando o teto cai para 6%. O plano publicado continua
 mostrando 7% (é o que ele viu e assinou), com uma marca de que a premissa está
 acima do teto vigente — e o convite para a reunião. Na revisão, a taxa é
 travada em 6% e a diferença aparece no diff.
+
+---
+
+## B16 · Decisões de fechamento
+
+| Ponto | Decisão |
+|---|---|
+| Variável da mensagem | **`{consultor}`** — "banker" sai |
+| Nome do perfil mais agressivo | **Arrojado** — mantém o que o demo já usa |
+
+### Texto canônico da notificação de mudança de premissa
+
+> O comitê de alocação e planejamento da Nord realinhou as variáveis financeiras
+> devido ao cenário atual e à nossa estratégia. É importante reajustar as
+> premissas do seu planejamento. Entre em contato com o seu consultor:
+> **{consultor}**
+
+Resolve o problema de causalidade que eu tinha levantado: *"cenário atual **e**
+nossa estratégia"* cobre tanto a mudança econômica quanto a decisão
+metodológica interna, sem afirmar uma causa que pode ser falsa.
+
+E nomeia um responsável institucional — **o comitê de alocação e planejamento da
+Nord** — em vez de deixar a mudança parecer que veio do sistema. Consistente com
+o inviolável do remetente humano: quem realinhou a premissa tem nome, e quem
+conversa sobre ela também.
