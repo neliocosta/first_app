@@ -56,17 +56,17 @@ export const RICARDO_CENARIO = {
   inicio: { ano: 2026, mes: 1 },
   idadeInicial: 54,
   horizonte: 552, // 46 anos
-  nota: 'Valores em moeda de hoje e taxas reais (acima da inflação). A repartição do patrimônio financeiro em caixinhas é proposta do consultor — o Ricardo declarou o total, não o recorte.',
+  nota: 'Todos os valores estão em dinheiro de hoje: R$ 10 milhões em 2049 compram o que R$ 10 milhões compram hoje, porque os rendimentos já vêm descontados da inflação. Você declarou o total do seu patrimônio; a divisão entre as caixas é uma proposta de {consultor}, ainda não fechada.',
 
   caixinhas: [
-    { id: 'reserva',   nome: 'Reserva financeira',    curto: 'Reserva',    camada: CAMADA.FINANCEIRO, natureza: NATUREZA.RESERVA,     saldoInicial:  180000, taxaAnual: 0.040, cor: COR.reserva,   prov: 'declarado',
+    { id: 'reserva',   nome: 'Reserva de emergência', curto: 'Reserva',    camada: CAMADA.FINANCEIRO, natureza: NATUREZA.RESERVA,     saldoInicial:  180000, taxaAnual: 0.040, cor: COR.reserva,   prov: 'declarado',
       nota: '11 meses do custo de vida declarado (R$ 16.000/mês). É o colchão — rende pouco de propósito, porque precisa estar líquido.' },
     { id: 'formacao',  nome: 'Formação dos filhos',   curto: 'Formação',   camada: CAMADA.FINANCEIRO, natureza: NATUREZA.COMPROMISSO, saldoInicial:  100000, taxaAnual: 0.045, cor: COR.formacao,  prov: 'estimado',
       nota: 'Compromisso com data: o filho mais novo se forma em 8 anos.' },
-    { id: 'travessia', nome: 'Travessia 2036–2041',   curto: 'Travessia',  camada: CAMADA.FINANCEIRO, natureza: NATUREZA.COMPROMISSO, saldoInicial:       0, taxaAnual: 0.040, cor: COR.travessia, prov: 'estimado',
-      nota: 'Nasce da venda da ótica e banca os 5 anos em que a renda da empresa já acabou e a aposentadoria ainda não começou.' },
+    { id: 'renda3641', nome: 'Renda de 2036 a 2041',  curto: 'Renda 36–41',  camada: CAMADA.FINANCEIRO, natureza: NATUREZA.COMPROMISSO, saldoInicial:       0, taxaAnual: 0.040, cor: COR.travessia, prov: 'estimado',
+      nota: 'Nasce da venda da ótica e paga os cinco anos em que a renda da empresa já acabou e a aposentadoria ainda não começou.' },
     { id: 'liberdade', nome: 'Liberdade financeira',  curto: 'Liberdade',  camada: CAMADA.FINANCEIRO, natureza: NATUREZA.LIBERDADE,   saldoInicial:  700000, taxaAnual: 0.075, cor: COR.liberdade, prov: 'estimado',
-      nota: 'O que sustenta a vida quando o trabalho parar de sustentar.' },
+      nota: 'O que sustenta a vida quando o trabalho parar de sustentar. É a maior das caixas e a de prazo mais longo — por isso é a que pode correr mais risco.' },
     { id: 'imoveis',   nome: 'Imóveis',               curto: 'Imóveis',    camada: CAMADA.BENS,       natureza: null,                 saldoInicial: 1430000, taxaAnual: 0.000, cor: COR.bens,      prov: 'estimado',
       // 0% real é o único default defensável: o mercado residencial brasileiro
       // já teve longos períodos de valorização real negativa, e projetar 46 anos
@@ -94,7 +94,7 @@ export const RICARDO_CENARIO = {
       { rotulo: 'Sem destino declarado', valor: 16000, prov: 'derivado',
         nota: 'A conta da sua renda menos o que você declarou. Achar para onde vai é a primeira tarefa do plano.' },
     ] },
-    { de: 7, ate: 59, receita: 38000, rotulo: 'Orçamento organizado', componentes: [
+    { de: 7, ate: 59, receita: 38000, rotulo: 'Com o orçamento ajustado', componentes: [
       { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
       { rotulo: 'Sem destino declarado', valor: 12000, prov: 'derivado',
         nota: 'Organizar o orçamento encontrou R$ 4.000 por mês do que não tinha destino.' },
@@ -108,7 +108,7 @@ export const RICARDO_CENARIO = {
       { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
       { rotulo: 'Sem destino declarado', valor: 12000, prov: 'derivado' },
     ] },
-    { de: 121, ate: 180, receita: 0, rotulo: 'A travessia — a ótica foi vendida',
+    { de: 121, ate: 180, receita: 0, rotulo: 'Depois da venda da ótica',
       premissa: 'A partir daqui o plano assume que a saída mensal cai de R$ 28.000 para R$ 16.000 — os R$ 12.000 sem destino declarado deixam de existir quando a empresa sai da vida. É uma queda de 43% e é ela que faz a travessia fechar: ao padrão de hoje a ponte duraria 33 meses, não 60.',
       componentes: [
         { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
@@ -118,7 +118,7 @@ export const RICARDO_CENARIO = {
       componentes: [
         { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
       ] },
-    { de: 361, ate: null, receita: 0, rotulo: 'Só do rendimento', componentes: [
+    { de: 361, ate: null, receita: 0, rotulo: 'Vive do rendimento', componentes: [
       { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
     ] },
   ],
@@ -148,18 +148,18 @@ export const RICARDO_CENARIO = {
     { id: 'ap6', tipo: EVENTO.APORTE_CONTINUO, mes: 97, mesFim: 120, caixinha: 'liberdade', valor: 10000, rotulo: 'Aporte para a liberdade' },
 
     // ── Fase 3: a venda da ótica e a travessia ──
-    { id: 'tr2', tipo: EVENTO.TRANSFERENCIA, mes: 121, de: 'otica', para: 'travessia', valor: TRAVESSIA.valor,
-      rotulo: 'Venda da ótica — a parte que banca a travessia',
+    { id: 'tr2', tipo: EVENTO.TRANSFERENCIA, mes: 121, de: 'otica', para: 'renda3641', valor: TRAVESSIA.valor,
+      rotulo: 'Venda da ótica — a parte que paga os cinco anos até a aposentadoria',
       porque: `Calculado pela ponta certa: é exatamente o que paga R$ ${TRAVESSIA.custoMensal.toLocaleString('pt-BR')}/mês durante os ${TRAVESSIA.meses} meses da travessia, a ${(TRAVESSIA.taxa * 100).toLocaleString('pt-BR')}% ao ano.` },
     { id: 'ir1', tipo: EVENTO.SAQUE_PONTUAL, mes: 121, caixinha: 'otica', valor: 0, lacuna: true,
       rotulo: 'Imposto sobre o ganho de capital na venda da ótica',
       porque: 'Alíquota e custo de aquisição são ⚠ LACUNA do tributarista. Enquanto não vierem, o valor que aterrissa no financeiro está superestimado.' },
     { id: 'tr3', tipo: EVENTO.TRANSFERENCIA, mes: 121, de: 'otica', para: 'liberdade', esvazia: true,
       rotulo: 'Venda da ótica — o restante vai para a liberdade' },
-    { id: 'cs1', tipo: EVENTO.CONSUMO, mes: 121, mesFim: 180, caixinha: 'travessia',
-      rotulo: 'A travessia: consumir a ponte em 5 anos' },
+    { id: 'cs1', tipo: EVENTO.CONSUMO, mes: 121, mesFim: 180, caixinha: 'renda3641',
+      rotulo: 'Paga o custo de vida até 2041, quando a aposentadoria começa.' },
     { id: 'rt1', tipo: EVENTO.RENTABILIDADE, mes: 122, mesFim: 180, caixinha: 'liberdade',
-      rotulo: 'A liberdade fica intocada durante a travessia' },
+      rotulo: 'A liberdade financeira fica intocada nesses cinco anos' },
 
     // ── Fase 4: aposentadoria ──
     { id: 'mt1', tipo: EVENTO.MUDANCA_TAXA, mes: 181, caixinha: 'liberdade', taxaAnual: 0.055,
@@ -169,7 +169,7 @@ export const RICARDO_CENARIO = {
 
     // ── Fase 5: viver só do rendimento, sem tocar no principal ──
     { id: 'pp1', tipo: EVENTO.PERPETUIDADE, mes: 361, mesFim: null, caixinha: 'liberdade',
-      rotulo: 'Viver do rendimento e preservar o principal para os filhos' },
+      rotulo: 'Vive do que os investimentos rendem, sem tocar no dinheiro guardado' },
   ],
 
   /** Marcos que ancoram a linha do tempo — o cliente se localiza por eles, não por "mês 121". */
@@ -178,7 +178,7 @@ export const RICARDO_CENARIO = {
     { mes: 97,  rotulo: 'Filho mais novo formado', idade: 62 },
     { mes: 121, rotulo: 'Venda da ótica',          idade: 64, destaque: true },
     { mes: 181, rotulo: 'Aposentadoria',           idade: 69, destaque: true },
-    { mes: 361, rotulo: 'Só do rendimento',        idade: 84 },
+    { mes: 361, rotulo: 'Vive do rendimento',        idade: 84 },
   ],
 };
 
@@ -188,6 +188,7 @@ export const RICARDO_CENARIO = {
 
 export const ESPECIFICACAO_CENARIO = {
   id: 'especificacao',
+  soConsultor: true,
   nome: 'Exemplo da especificação',
   legenda: 'os números exatos da spec — para conferir a matemática',
   inicio: { ano: 2026, mes: 1 },
@@ -196,7 +197,7 @@ export const ESPECIFICACAO_CENARIO = {
   nota: 'Nada aqui foi inventado: é exatamente o cenário descrito na especificação da ferramenta. Serve para conferir, mês a mês, se o motor faz a conta certa.',
 
   caixinhas: [
-    { id: 'reserva',   nome: 'Reserva financeira',    curto: 'Reserva',   camada: CAMADA.FINANCEIRO, natureza: NATUREZA.RESERVA,     saldoInicial: 100000, taxaAnual: 0.040, cor: COR.reserva },
+    { id: 'reserva',   nome: 'Reserva de emergência', curto: 'Reserva',   camada: CAMADA.FINANCEIRO, natureza: NATUREZA.RESERVA,     saldoInicial: 100000, taxaAnual: 0.040, cor: COR.reserva },
     { id: 'reforma',   nome: 'Reforma da casa',       curto: 'Reforma',   camada: CAMADA.FINANCEIRO, natureza: NATUREZA.COMPROMISSO, saldoInicial:  50000, taxaAnual: 0.040, cor: COR.compromisso },
     { id: 'viagens',   nome: 'Viagens internacionais',curto: 'Viagens',   camada: CAMADA.FINANCEIRO, natureza: NATUREZA.OBJETIVO,    saldoInicial:  80000, taxaAnual: 0.040, cor: COR.objetivo },
     { id: 'casa',      nome: 'Compra da casa',        curto: 'Casa',      camada: CAMADA.FINANCEIRO, natureza: NATUREZA.OBJETIVO,    saldoInicial: 450000, taxaAnual: 0.055, cor: COR.travessia },

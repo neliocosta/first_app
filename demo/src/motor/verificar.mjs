@@ -99,13 +99,13 @@ const travessia = rm(121);
 console.log(`  mês 121 (${travessia.data.rotulo}): venda da ótica`);
 console.log(`     ótica antes:      ${brl(rm(120).camadas.participacoes)}`);
 console.log(`     ótica depois:     ${brl(travessia.camadas.participacoes)}`);
-console.log(`     travessia:        ${brl(travessia.caixinhas.travessia.fechamento)}`);
+console.log(`     travessia:        ${brl(travessia.caixinhas.renda3641.fechamento)}`);
 console.log(`     liberdade:        ${brl(travessia.caixinhas.liberdade.fechamento)}`);
 const consumo = travessia.eventos.find((x) => x.tipo === 'consumo');
 console.log(`  PMT calculado pelo sistema: ${brl(consumo.pmt)}/mês por 60 meses`);
 ok(perto(travessia.camadas.participacoes, 0, 1), 'a ótica zera: o valor todo virou patrimônio financeiro');
 ok(consumo.pmt > 15000 && consumo.pmt < 17500, 'o PMT da travessia cobre o custo de vida de R$ 16.000');
-ok(perto(rm(180).caixinhas.travessia.fechamento, 0, 5),
+ok(perto(rm(180).caixinhas.renda3641.fechamento, 0, 5),
    'a caixinha da travessia zera exatamente no mês 180 — o consumo consumiu');
 
 console.log('\n── Aposentadoria e perpetuidade ──');

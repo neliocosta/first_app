@@ -89,3 +89,94 @@ que a caixinha da travessia zera exatamente no mês 180.
 ## Pareceres
 
 _(preenchido pelos agentes)_
+
+---
+
+## Veredito da rodada: **0 / 6 SATISFEITO**
+
+| Agente | Veredito | O achado mais caro |
+|---|---|---|
+| **Cliente** *(veto)* | NÃO SATISFEITO | A despesa projetada contradizia por 2× o custo de vida que ele declarou no exame |
+| **UX/UI** *(veto)* | NÃO SATISFEITO | No zoom de 7 meses o eixo de valor não participa do zoom: "aproximei e vi uma laje" |
+| **Planejador CFP** | NÃO SATISFEITO | Vazamento de R$ 125/mês na travessia; premissa que sustenta o plano nunca declarada |
+| **Psicólogo** | NÃO SATISFEITO | 35 anos de aposentadoria planejada pintados como déficit laranja |
+| **Engenheiro** | NÃO SATISFEITO | `dividirJanelas` duplicava eventos pontuais — R$ 119.818 criados do nada |
+| **Redator** | NÃO SATISFEITO | Alerta invertido: dizia "o plano tira mais do que o caixa comporta" quando o plano traz de menos |
+
+### Convergências independentes (o sinal mais forte da rodada)
+
+Três agentes chegaram, por caminhos diferentes, ao **mesmo** defeito: a aposentadoria
+planejada renderizada como fracasso. Dois chegaram à **mesma** contradição entre a
+despesa do orçamento e o custo de vida declarado. Quando o painel converge sem se
+consultar, o defeito é real.
+
+### Arbitragem: Cliente × CFP sobre a alavanca de rentabilidade
+
+Conflito direto entre dois pareceres.
+
+- **Cliente:** "não assino uma projeção de 46 anos com uma linha só, sem faixa, sem
+  'e se render menos'. Isso é papo de banco com gráfico bonito." → exige a alavanca.
+- **CFP:** "a taxa não ser alavanca do simulador é acerto sério — *enshrine* isso,
+  senão o próximo desenvolvedor 'melhora' a UX e me entrega uma máquina de comprar
+  rentabilidade." → proíbe a alavanca.
+
+**Decisão: alavanca de mão única.** A rentabilidade só desce. Dá para testar se o
+plano aguenta render menos; não dá para fazê-lo fechar rendendo mais.
+*Prudência é simulável; otimismo não é.* Os dois estão certos sobre coisas
+diferentes, e a assimetria atende os dois sem diluir nenhum.
+
+### Bloqueantes fechados nesta rodada
+
+**Motor**
+1. Despesa nunca mais é número opaco — toda janela declara componentes com proveniência.
+2. `pvNecessario()`, a pergunta inversa: a ponte passa a ser derivada da necessidade
+   (R$ 873.159), não cravada. O PMT bate exato e o vazamento acabou.
+3. Retirada planejada ≠ falta. `fluxo.natureza` separa `sustentadoPeloPatrimonio` de
+   `descoberto`; laranja fica reservado ao que de fato não fecha.
+4. Alerta invertido corrigido, com variante para mês com e sem renda.
+5. `dividirJanelas` só parte eventos de janela; a alavanca de aporte tem alcance
+   (morre no fim da fase) e só mexe na folga sem destino — nunca no custo declarado.
+6. `brl(NaN)` devolve `—`, nunca "R$ 0".
+7. Validação de carga: caixinha inexistente, janela invertida, orçamentos sobrepostos.
+8. Imóvel a 0% real + ⚠ LACUNA; IR sobre a venda existe na linha com valor não apurado.
+
+**Tela**
+9. Eixo de valor corta a base abaixo de 36 meses, com o corte **declarado** na tela.
+10. Leitura da janela ("nesta janela: +R$ 102.359 · +2,0%") — é ela que responde
+    "o que acontece nos próximos 7 meses".
+11. Abre em hoje. Antes o primeiro número era um mês a 5 anos de distância.
+12. Legenda clicável responde "quando esse objetivo termina", com destaque no gráfico.
+13. Estoque vira fluxo: "sustenta R$ X/mês sem tocar no dinheiro guardado".
+14. Duas colunas no desktop; palco fixo no topo quando se simula no celular.
+15. `touch-action: pan-y` e roda que só toma a página quando o gesto é de zoom.
+16. Transições animadas; toque inspeciona; pinça pela hipotenusa; inércia por velocidade.
+17. Vocabulário unificado: Reserva de emergência · Renda de 2036 a 2041 · Visão geral ·
+    Aporte mensal/extra · Vive do rendimento · Renda por prazo · "o dinheiro guardado".
+18. "Zeradas" vira dois estados: *já cumpriram o papel* × *ainda não começou*.
+19. Achado de simulação não é erro — cor própria e a consequência ao lado do slider.
+20. Copy morta ressuscitada: notas das caixinhas, proveniência, o "porquê" dos eventos.
+
+Bancada de conferência: **21 → 31**, incluindo o invariante que teria pego a
+contradição original e o branch de mudança de taxa dentro de janela de consumo,
+que nunca rodava.
+
+### Aberto para a rodada 07
+
+Do CFP: passivo como camada de primeira classe com cronograma de amortização;
+previdência e INSS; gestão de riscos (morte/invalidez) no motor; sucessório líquido
+de ITCMD; inflação específica de saúde; premissas versionadas com trava de
+suitability sobre a taxa; gerador de cenário-base a partir da coleta.
+
+Do Engenheiro: modelar `Cenario`/`Caixinha`/`EventoPatrimonial`/`Simulacao` em §3.2 e
+§3.4 da especificação; registro de tipos de evento em um lugar só; superfície de
+autoria para o consultor; cobertura de teste para `simulacao.js` e `viewport.js`.
+
+Do Psicólogo: ligar a ferramenta à cadência mensal (o aporte informado devolve
+"quer ver onde ele cai na sua linha do tempo?"); saída para o humano no pico de
+motivação; caminho de volta ao lado de todo alerta negativo (§10.3).
+
+Do Cliente: o outro galho da árvore — e se eu morrer; saída em papel para o contador;
+editar as próprias caixinhas.
+
+Do UX: tooltip na crosshair; rótulo dentro da banda; ícones redesenhados por forma
+(direção) e preenchimento (cadência), para a cor virar redundante.

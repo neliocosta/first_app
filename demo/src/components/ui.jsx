@@ -95,6 +95,7 @@ import {
 } from 'lucide-react';
 
 const ICONES = {
+  'calendar-days': CalendarDays,
   'circle-plus': CirclePlus, 'circle-minus': CircleMinus, repeat: Repeat,
   'arrow-up-from-line': ArrowUpFromLine, infinity: InfinityIcon, 'battery-low': BatteryLow,
   percent: Percent, 'arrow-left-right': ArrowLeftRight, 'zoom-in': ZoomIn, 'zoom-out': ZoomOut,

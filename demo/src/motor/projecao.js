@@ -65,15 +65,15 @@ export const EVENTO = {
  * ser reconhecido na régua ANTES de ser lido.
  */
 export const EVENTO_META = {
-  aportePontual:  { rotulo: 'Aporte pontual',          icone: 'circle-plus',        sinal: +1, cor: '#1F7A45' },
-  aporteContinuo: { rotulo: 'Aporte contínuo',         icone: 'repeat',             sinal: +1, cor: '#2E9E5B' },
-  rentabilidade:  { rotulo: 'Só rendendo',             icone: 'trending-up',        sinal: 0,  cor: '#8A94A6' },
-  saquePontual:   { rotulo: 'Resgate pontual',         icone: 'circle-minus',       sinal: -1, cor: '#C2410C' },
-  saqueContinuo:  { rotulo: 'Resgate mensal',          icone: 'arrow-up-from-line', sinal: -1, cor: '#C2410C' },
-  perpetuidade:   { rotulo: 'Perpetuidade',            icone: 'infinity',           sinal: -1, cor: '#7B5EA7' },
-  consumo:        { rotulo: 'Consumo do patrimônio',   icone: 'battery-low',        sinal: -1, cor: '#B23B6F' },
-  mudancaTaxa:    { rotulo: 'Mudança de taxa',         icone: 'percent',            sinal: 0,  cor: '#20344C' },
-  transferencia:  { rotulo: 'Transferência',           icone: 'arrow-left-right',   sinal: 0,  cor: '#20344C' },
+  aportePontual:  { rotulo: 'Aporte extra',     icone: 'circle-plus',        sinal: +1, cor: '#1F7A45', forma: 'pontual' },
+  aporteContinuo: { rotulo: 'Aporte mensal',    icone: 'repeat',             sinal: +1, cor: '#2E9E5B', forma: 'janela' },
+  rentabilidade:  { rotulo: 'Sem mexer',        icone: 'trending-up',        sinal: 0,  cor: '#8A94A6', forma: 'janela' },
+  saquePontual:   { rotulo: 'Resgate único',    icone: 'circle-minus',       sinal: -1, cor: '#C2410C', forma: 'pontual' },
+  saqueContinuo:  { rotulo: 'Resgate mensal',   icone: 'arrow-up-from-line', sinal: -1, cor: '#C2410C', forma: 'janela' },
+  perpetuidade:   { rotulo: 'Vive do rendimento', icone: 'infinity',         sinal: -1, cor: '#7B5EA7', forma: 'janela' },
+  consumo:        { rotulo: 'Renda por prazo',  icone: 'calendar-days',      sinal: -1, cor: '#B23B6F', forma: 'janela' },
+  mudancaTaxa:    { rotulo: 'Mudança de taxa',  icone: 'percent',            sinal: 0,  cor: '#20344C', forma: 'pontual' },
+  transferencia:  { rotulo: 'Muda de destino',  icone: 'arrow-left-right',   sinal: 0,  cor: '#20344C', forma: 'pontual' },
 };
 
 /** Ordem de aplicação dentro do mês. Dinheiro entra antes de ser gasto. */
@@ -366,14 +366,36 @@ export function projetar(cenario) {
     }
 
     // ── 5. Conciliação: nenhum real evapora em silêncio ──
+    //
+    // E, tão importante quanto: um mês em que a vida é sustentada pelo
+    // patrimônio — como planejado, depois que o trabalho para — NÃO é um mês no
+    // vermelho. Antes o motor tratava os dois casos com a mesma gramática, e a
+    // tela pintava 35 anos de aposentadoria como déficit. O plano funcionando
+    // exatamente como foi desenhado aparecia como três décadas de fracasso.
     const descasamento = sobra - (entraDoFluxo - saiDoFluxo);
     const folga = Math.max(TOLERANCIA_FLUXO.pisoAbsoluto, Math.abs(sobra) * TOLERANCIA_FLUXO.fracao);
-    if (!f.achou) {
-      linha.alertas.push({ nivel: 'atencao', texto: 'Nenhum orçamento declarado para este mês.' });
-    } else if (Math.abs(descasamento) > folga) {
-      linha.alertas.push(descasamento > 0
-        ? { nivel: 'atencao', texto: `${brl(descasamento)} sobraram neste mês sem destino definido.` }
-        : { nivel: 'erro', texto: `Faltam ${brl(-descasamento)} para o mês fechar: o plano tira mais do que o caixa comporta.` });
+    const precisaDoPatrimonio = Math.max(0, -sobra);
+
+    let natureza;
+    if (!f.achou) natureza = 'semOrcamento';
+    else if (precisaDoPatrimonio > 0) {
+      natureza = saiDoFluxo >= precisaDoPatrimonio - folga ? 'sustentadoPeloPatrimonio' : 'descoberto';
+    } else if (sobra > 0) {
+      natureza = descasamento > folga ? 'sobrouSemDestino' : 'poupando';
+    } else natureza = 'parado';
+
+    if (natureza === 'semOrcamento') {
+      linha.alertas.push({ nivel: 'atencao', texto: 'Ainda não sabemos quanto entra e quanto sai neste mês.' });
+    } else if (natureza === 'descoberto') {
+      // O caso que o alerta antigo descrevia ao contrário: aqui o plano traz
+      // MENOS do que a vida custa, não mais.
+      linha.alertas.push({ nivel: 'erro',
+        texto: `A vida custa ${brl(despesa)} e o plano traz ${brl(saiDoFluxo)} do patrimônio. Faltam ${brl(precisaDoPatrimonio - saiDoFluxo)} neste mês.` });
+    } else if (natureza === 'sobrouSemDestino') {
+      linha.alertas.push({ nivel: 'atencao', texto: `${brl(descasamento)} sobraram neste mês sem destino definido.` });
+    } else if (descasamento < -folga) {
+      linha.alertas.push({ nivel: 'erro',
+        texto: `O plano manda guardar ${brl(entraDoFluxo)}, mas sobram ${brl(sobra)} no mês. Faltam ${brl(-descasamento)}.` });
     }
 
     // ── 6. Fecha o mês ──
@@ -396,9 +418,13 @@ export function projetar(cenario) {
     linha.quebrou = linha.alertas.some((a) => a.nivel === 'erro');
     linha.total = linha.camadas.financeiro + linha.camadas.bens + linha.camadas.participacoes;
     linha.fluxo = {
-      receita: f.receita, despesa, sobra, componentes: f.componentes,
+      receita: f.receita, despesa, sobra, componentes: f.componentes, natureza,
       entra: entraDoFluxo, sai: saiDoFluxo, descasamento,
-      rotulo: f.rotulo, semOrcamento: !f.achou, lacunas: f.lacunas,
+      // Quanto do mês veio do patrimônio POR PLANO — a barra desenha isto em
+      // cor neutra; laranja fica reservado ao que de fato está descoberto.
+      doPatrimonio: natureza === 'sustentadoPeloPatrimonio' ? saiDoFluxo : 0,
+      descoberto: natureza === 'descoberto' ? precisaDoPatrimonio - saiDoFluxo : 0,
+      rotulo: f.rotulo, premissa: f.premissa, semOrcamento: !f.achou,
     };
     if (linha.total > maximo) maximo = linha.total;
     meses.push(linha);
@@ -433,14 +459,26 @@ export function dataDoMes(inicio, m) {
 export const MES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
 export const brl = (n) =>
-  Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  (Number.isFinite(Number(n))
+    ? Number(n).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+    : '—'); // nunca "R$ 0" para um número que não existe
 
 /** Abreviação para eixos: "1,2 mi", "340 mil". Não cabe "R$ 1.234.567" num tick. */
 export function brlCurto(n) {
+  if (!Number.isFinite(Number(n))) return '—';
   const v = Math.abs(n);
   if (v >= 1e6) return `${(n / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`;
   if (v >= 1e3) return `${Math.round(n / 1e3)} mil`;
   return Math.round(n).toString();
+}
+
+/** Projeção não merece precisão ao real. Exato só onde o dado é verificável. */
+export function brlProjetado(n) {
+  if (!Number.isFinite(Number(n))) return '—';
+  const v = Math.abs(n);
+  if (v >= 1e6) return `R$ ${(n / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} milhões`;
+  if (v >= 1e5) return `R$ ${Math.round(n / 1e3)} mil`;
+  return brl(n);
 }
 
 export const pct = (t) => `${(t * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% a.a.`;
