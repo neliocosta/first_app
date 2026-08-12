@@ -394,3 +394,64 @@ A trava de suitability deixa de ter **uma** superfície e passa a ter **duas**:
 
 Entra na fila junto com as 7 calculadoras (A14). **⚠ LACUNA:** perguntas,
 pontuação e mapeamento para os três perfis.
+
+---
+
+## B13 · Área de admin: as taxas são parâmetro da casa, não campo do cliente
+
+> *"O ideal é que tenha uma área de admin onde estas taxas são configuradas."*
+
+**Isto fecha um bloqueante que o CFP levantou duas vezes** — na rodada 06
+(*"premissas versionadas com trava de suitability"*) e na 07 (*"tabela de
+parâmetros por natureza, versionada; nunca digitada no cadastro do cliente,
+senão são 150 clientes com 150 inflações implícitas"*).
+
+### O que a área de admin governa
+
+| Parâmetro | Hoje |
+|---|---|
+| Teto de retorno real líquido por perfil | conservador 7% · moderado ⚠ · arrojado ⚠ |
+| Faixa configurável de retorno por caixinha | 3% a 9% |
+| Valorização real de imóveis | hoje 0% + ⚠ LACUNA |
+| Referências de saúde do orçamento macro | fixos ≤50% · ajustáveis ≤30% · Futuro e Sonhos ≥20% |
+| Inflação real por categoria de despesa | ⚠ LACUNA (saúde na velhice) |
+| Alíquotas e tabelas legais | ⚠ LACUNA (tributarista) |
+
+Nenhum desses números volta a ser digitado na tela do cliente nem na do
+consultor. Eles **descem** da casa.
+
+### ⚠ A consequência que precisa ser decidida junto: versionamento
+
+Se o admin baixar o teto do conservador de 7% para 6%, **o que acontece com os
+planos já publicados?**
+
+- **Recalcular em silêncio** é o pior caminho: a projeção que o cliente viu na
+  reunião de junho muda sozinha, e o consultor não consegue defender o que
+  mostrou. É a mesma classe de problema do `numerosSnapshot` que a especificação
+  selada já resolve para o capítulo da devolutiva (§3.2).
+- **Congelar por versão** é o caminho: cada plano publicado guarda
+  `premissasVersao`, e continua sendo lido com os parâmetros vigentes na
+  publicação. A mudança do admin só atinge planos novos e revisões
+  explícitas — e a revisão mostra o diff.
+
+```
+ParametrosDaCasa {
+  versao, vigenteDesde, publicadoPor,
+  tetoPorPerfil: { conservador, moderado, arrojado },
+  faixaRetorno: { min, max },
+  ...
+}
+
+Plano { ..., premissasVersao }   // congelado na publicação
+```
+
+E na semestral, o consultor precisa ver: *"os parâmetros da casa mudaram desde o
+seu último plano — quer reprojetar?"*, com o antes e o depois lado a lado.
+
+### O terceiro ator ganha tela
+
+A matriz de permissões da especificação selada (§3.4) já prevê **Admin**, mas
+até hoje ele só tinha `READ agregado`. A área de admin é a primeira superfície
+em que o Admin **escreve** — e escreve algo que afeta todos os clientes de uma
+vez. Portanto: toda mudança de parâmetro entra no `AuditLog`, com quem, quando e
+o valor anterior.
