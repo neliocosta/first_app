@@ -258,3 +258,63 @@ travada por suitability. O Nélio deu a faixa mas não a amarração ao perfil.
 **5. O carro entra como bem que vira dinheiro.** Mesma mecânica da ótica do
 Ricardo — uma `transferencia` de `bens` para `financeiro`. Confirma que a camada
 de bens precisa ser item a item, não um bloco só.
+
+---
+
+## B9 · Esvaziar a caixinha é o padrão — e o saque vira diagnóstico
+
+> *"O ideal é esvaziar a caixinha e o cliente vê o quanto ele teria naquele
+> momento. Inclusive, ele pode, com isso, descobrir que o valor separado por
+> compromisso está abaixo. Vamos supor que, com a rentabilidade projetada, 30 mil
+> virariam 32, e meu compromisso custa 35. Então tenho que voltar no patrimônio
+> inicial e aumentar o valor que está destinado para aquele compromisso."*
+
+O evento não só gasta — ele **testa se a caixinha foi dimensionada certo**. E o
+resultado do teste devolve o cliente ao começo, para corrigir a repartição
+inicial. É um laço fechado:
+
+```
+reparte o patrimônio  →  marca o evento  →  o motor projeta o saldo naquele mês
+        ↑                                              ↓
+        └──────── "faltam R$ 3.000" ←──── compara com o custo do compromisso
+```
+
+**Isto fecha o bloqueante que o Cliente levantou na rodada 07** — *"toda caixinha
+precisa de meta e veredito; Formação dos filhos: R$ 111.308, isso é suficiente?
+Não faço ideia"* — e fecha sem inventar mecanismo nenhum:
+
+| Peça | De onde vem |
+|---|---|
+| **Prazo** | a data do evento |
+| **Meta** | o valor do compromisso |
+| **Veredito** | saldo projetado − meta |
+| **Correção** | volta à repartição inicial |
+
+O motor já sabe fazer as três primeiras. Falta a interface **mostrar o
+confronto** e **oferecer o caminho de volta** — que é literalmente o
+"caminho de volta na mesma tela, com igual peso visual" que a especificação
+selada já exige (§10.3).
+
+Consequência de modelo: a caixinha de compromisso ganha dois campos —
+`custoEsperado` e `dataEsperada` — e o saque pontual passa a ter duas formas
+declaradas na tela:
+
+- **"usar o que estiver na caixinha"** (esvazia) — o padrão
+- **"usar R$ X"** (valor fixo)
+
+## B10 · Unidade das taxas: anual é a canônica, mensal é o apoio
+
+> *"O ideal é sempre a gente pensar em retorno real líquido anual, mas, quando
+> apresentamos esses dados, é valioso para o cliente entender essa equivalência
+> mensal, porque muitas vezes ele enxerga a rentabilidade do investimento dele
+> mensal."*
+
+**Formato oficial:**
+
+> 4,91% a.a. *(~0,40% a.m.)*
+
+O parêntese em corpo menor e itálico. Vale em toda a plataforma onde uma taxa
+aparecer — caixinha, perpetuidade, teste de estresse, legenda do gráfico.
+
+Entrada de dado: **sempre anual**. A equivalência mensal é derivada, nunca
+digitada — senão viram duas fontes da verdade para o mesmo número.
