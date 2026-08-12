@@ -455,3 +455,57 @@ até hoje ele só tinha `READ agregado`. A área de admin é a primeira superfí
 em que o Admin **escreve** — e escreve algo que afeta todos os clientes de uma
 vez. Portanto: toda mudança de parâmetro entra no `AuditLog`, com quem, quando e
 o valor anterior.
+
+---
+
+## B14 · Tetos definitivos de retorno real líquido
+
+| Perfil | Teto |
+|---|---|
+| Conservador | **6% a.a.** |
+| Moderado | **7,5% a.a.** |
+| Agressivo | **9% a.a.** |
+
+A faixa configurável (3% a 9%) fica exatamente delimitada pelo perfil mais
+agressivo. Coerente — o topo da faixa é o teto de quem pode mais.
+
+> Corrige o valor provisório de B11: o conservador era 7%, passa a **6%**.
+
+> ⚠ **Divergência de nome:** o demo usa **Arrojado** (`Coleta.jsx`, botões de
+> perfil); aqui o Nélio escreveu **Agressivo**. Um dos dois tem de ceder.
+
+## B15 · Mudança de parâmetro da casa → o cliente é notificado e convidado
+
+> *"O cliente é notificado e convidado a fazer uma reunião com o consultor para
+> realizar o planejamento. Em uma mensagem, como o cenário econômico mudou.
+> Importante reajustar as premissas do seu planejamento. Entre em contato com o
+> seu consultor: {nomeDoBanker}"*
+
+**Isto confirma o congelamento por versão.** Se o convite é para *refazer* o
+planejamento, então o plano publicado **não** se refaz sozinho: ele continua
+sendo lido com `premissasVersao` da publicação até que uma revisão explícita
+aconteça na reunião. Notificar e recalcular em silêncio ao mesmo tempo seria
+contraditório.
+
+Respeita o inviolável do **remetente humano**: a mudança de premissa não vira um
+número que muda sozinho na tela — vira um convite para conversar com uma pessoa
+com nome.
+
+### Três coisas a resolver no texto e no comportamento
+
+**1. `{nomeDoBanker}` é vocabulário novo.** O produto inteiro diz **consultor**
+(`CONSULTOR.primeiroNome`, "Nélio Costa, CFP®"). "Banker" não aparece em lugar
+nenhum. Ou o produto adota, ou a mensagem usa `{consultor}`.
+
+**2. "Como o cenário econômico mudou" pode não ser verdade.** O admin pode
+baixar um teto por decisão de política interna, revisão metodológica ou
+prudência — não necessariamente porque a economia mudou. Atribuir sempre à
+economia é inventar uma causa. A mensagem precisa ou de uma variante neutra
+(*"revisamos as premissas que usamos nos planejamentos"*), ou de um campo
+`motivo` que o admin preenche ao publicar a versão.
+
+**3. O caso prático que vai acontecer primeiro:** um cliente conservador com a
+caixinha configurada a 7% quando o teto cai para 6%. O plano publicado continua
+mostrando 7% (é o que ele viu e assinou), com uma marca de que a premissa está
+acima do teto vigente — e o convite para a reunião. Na revisão, a taxa é
+travada em 6% e a diferença aparece no diff.
