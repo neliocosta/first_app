@@ -16,7 +16,19 @@
  *     a matemática do motor contra um caso de teste conhecido.
  */
 
-import { CAMADA, NATUREZA, EVENTO } from './projecao.js';
+import { CAMADA, NATUREZA, EVENTO, pvNecessario, taxaMensal } from './projecao.js';
+
+/**
+ * O tamanho da travessia é DERIVADO da necessidade, não arbitrado.
+ * R$ 16.000/mês durante os 60 meses entre a venda da ótica e a aposentadoria,
+ * a 4% ao ano reais → R$ 873.159. Antes este número era R$ 880.000 cravado à
+ * mão, e os R$ 125/mês de excedente evaporavam dentro da banda de tolerância:
+ * R$ 7.500 sumindo numa ferramenta que promete que nenhum real some em silêncio.
+ */
+export const TRAVESSIA = {
+  custoMensal: 16000, meses: 60, taxa: 0.04,
+  get valor() { return Math.round(pvNecessario(this.custoMensal, taxaMensal(this.taxa), this.meses)); },
+};
 
 /** Paleta das caixinhas: rampa de luminosidade variada, para o gráfico continuar
  *  legível sem depender de matiz (exigência do sub-crítico Cego de Cor). */
@@ -48,27 +60,77 @@ export const RICARDO_CENARIO = {
 
   caixinhas: [
     { id: 'reserva',   nome: 'Reserva financeira',    curto: 'Reserva',    camada: CAMADA.FINANCEIRO, natureza: NATUREZA.RESERVA,     saldoInicial:  180000, taxaAnual: 0.040, cor: COR.reserva,   prov: 'declarado',
-      nota: '11 meses de custo de vida. É o colchão — rende pouco de propósito, porque precisa estar líquido.' },
+      nota: '11 meses do custo de vida declarado (R$ 16.000/mês). É o colchão — rende pouco de propósito, porque precisa estar líquido.' },
     { id: 'formacao',  nome: 'Formação dos filhos',   curto: 'Formação',   camada: CAMADA.FINANCEIRO, natureza: NATUREZA.COMPROMISSO, saldoInicial:  100000, taxaAnual: 0.045, cor: COR.formacao,  prov: 'estimado',
       nota: 'Compromisso com data: o filho mais novo se forma em 8 anos.' },
     { id: 'travessia', nome: 'Travessia 2036–2041',   curto: 'Travessia',  camada: CAMADA.FINANCEIRO, natureza: NATUREZA.COMPROMISSO, saldoInicial:       0, taxaAnual: 0.040, cor: COR.travessia, prov: 'estimado',
       nota: 'Nasce da venda da ótica e banca os 5 anos em que a renda da empresa já acabou e a aposentadoria ainda não começou.' },
     { id: 'liberdade', nome: 'Liberdade financeira',  curto: 'Liberdade',  camada: CAMADA.FINANCEIRO, natureza: NATUREZA.LIBERDADE,   saldoInicial:  700000, taxaAnual: 0.075, cor: COR.liberdade, prov: 'estimado',
       nota: 'O que sustenta a vida quando o trabalho parar de sustentar.' },
-    { id: 'imoveis',   nome: 'Imóveis',               curto: 'Imóveis',    camada: CAMADA.BENS,       natureza: null,                 saldoInicial: 1430000, taxaAnual: 0.020, cor: COR.bens,      prov: 'estimado',
-      nota: 'R$ 1.750.000 de valor estimado menos R$ 320.000 de saldo devedor. ⚠ LACUNA: o cronograma de amortização entra na Montagem do Relatório.' },
+    { id: 'imoveis',   nome: 'Imóveis',               curto: 'Imóveis',    camada: CAMADA.BENS,       natureza: null,                 saldoInicial: 1430000, taxaAnual: 0.000, cor: COR.bens,      prov: 'estimado',
+      // 0% real é o único default defensável: o mercado residencial brasileiro
+      // já teve longos períodos de valorização real negativa, e projetar 46 anos
+      // de alta real seria confiança silenciosa justo onde a ferramenta é
+      // honestamente humilde com a ótica.
+      lacuna: 'Valorização real dos imóveis: ⚠ premissa da consultoria, ainda não definida. Projetado a 0% real — o valor de hoje, mantido.',
+      nota: 'R$ 1.750.000 de valor estimado menos R$ 320.000 de saldo devedor. A prestação ainda não está no fluxo de caixa e a amortização não está na projeção.' },
     { id: 'otica',     nome: 'Rede de óticas',        curto: 'Ótica',      camada: CAMADA.PARTICIPACOES, natureza: null,              saldoInicial: 2400000, taxaAnual: 0.000, cor: COR.participacoes, prov: 'estimado',
       nota: 'Valor estimado pelo próprio Ricardo, mantido constante: ninguém sabe por quanto uma ótica vende em 2036. Use o simulador para testar outros valores.' },
   ],
 
+  /**
+   * A despesa NUNCA aparece como um número só.
+   *
+   * O Ricardo declarou três coisas que, juntas, forçam uma quarta: renda de
+   * R$ 38.000, custo de vida de R$ 16.000 e R$ 6.000 poupados por mês. Sobram
+   * R$ 16.000 sem destino declarado — e ele mesmo respondeu no exame que "não
+   * acompanha, mas tem ideia". Esse buraco é dado dele, não invenção nossa, e
+   * por isso é mostrado com nome próprio em vez de somado num total opaco.
+   * Sem essa decomposição, a tela pareceria contradizer o exame do cliente.
+   */
   orcamento: [
-    { de: 1,   ate: 6,    receita: 38000, despesa: 32000, rotulo: 'Hoje' },
-    { de: 7,   ate: 59,   receita: 38000, despesa: 28000, rotulo: 'Orçamento organizado' },
-    { de: 60,  ate: 96,   receita: 38000, despesa: 36000, rotulo: 'Faculdade dos filhos' },
-    { de: 97,  ate: 120,  receita: 38000, despesa: 28000, rotulo: 'Últimos anos na ótica' },
-    { de: 121, ate: 180,  receita: 0,     despesa: 16000, rotulo: 'A travessia — a ótica foi vendida' },
-    { de: 181, ate: 360,  receita: 0,     despesa: 16000, rotulo: 'Aposentadoria' },
-    { de: 361, ate: null, receita: 0,     despesa: 16000, rotulo: 'Só do rendimento' },
+    { de: 1, ate: 6, receita: 38000, rotulo: 'Hoje', componentes: [
+      { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+      { rotulo: 'Sem destino declarado', valor: 16000, prov: 'derivado',
+        nota: 'A conta da sua renda menos o que você declarou. Achar para onde vai é a primeira tarefa do plano.' },
+    ] },
+    { de: 7, ate: 59, receita: 38000, rotulo: 'Orçamento organizado', componentes: [
+      { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+      { rotulo: 'Sem destino declarado', valor: 12000, prov: 'derivado',
+        nota: 'Organizar o orçamento encontrou R$ 4.000 por mês do que não tinha destino.' },
+    ] },
+    { de: 60, ate: 96, receita: 38000, rotulo: 'Faculdade dos filhos', componentes: [
+      { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+      { rotulo: 'Faculdade', valor: 8000, prov: 'estimado' },
+      { rotulo: 'Sem destino declarado', valor: 12000, prov: 'derivado' },
+    ] },
+    { de: 97, ate: 120, receita: 38000, rotulo: 'Últimos anos na ótica', componentes: [
+      { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+      { rotulo: 'Sem destino declarado', valor: 12000, prov: 'derivado' },
+    ] },
+    { de: 121, ate: 180, receita: 0, rotulo: 'A travessia — a ótica foi vendida',
+      premissa: 'A partir daqui o plano assume que a saída mensal cai de R$ 28.000 para R$ 16.000 — os R$ 12.000 sem destino declarado deixam de existir quando a empresa sai da vida. É uma queda de 43% e é ela que faz a travessia fechar: ao padrão de hoje a ponte duraria 33 meses, não 60.',
+      componentes: [
+        { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+      ] },
+    { de: 181, ate: 360, receita: 0, rotulo: 'Aposentadoria',
+      premissa: 'Custo de vida constante dos 69 aos 99. ⚠ LACUNA: a inflação específica de saúde na idade avançada ainda não está modelada — é o erro mais caro de projeção de aposentadoria.',
+      componentes: [
+        { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+      ] },
+    { de: 361, ate: null, receita: 0, rotulo: 'Só do rendimento', componentes: [
+      { rotulo: 'Custo de vida', valor: 16000, prov: 'declarado' },
+    ] },
+  ],
+
+  /** Buracos conhecidos, ditos na tela — não escondidos em comentário de código. */
+  lacunas: [
+    { rotulo: 'Prestação do financiamento',
+      texto: 'Os R$ 320.000 de saldo devedor entram abatidos do valor do imóvel, mas a prestação ainda não está no fluxo de caixa e a amortização não está na projeção.',
+      onde: 'sempre' },
+    { rotulo: 'Imposto sobre a venda da ótica',
+      texto: 'Os R$ 2.400.000 entram brutos. O imposto sobre o ganho de capital ainda não foi calculado — o valor que de fato vira patrimônio é menor.',
+      onde: 121 },
   ],
 
   eventos: [
@@ -86,8 +148,12 @@ export const RICARDO_CENARIO = {
     { id: 'ap6', tipo: EVENTO.APORTE_CONTINUO, mes: 97, mesFim: 120, caixinha: 'liberdade', valor: 10000, rotulo: 'Aporte para a liberdade' },
 
     // ── Fase 3: a venda da ótica e a travessia ──
-    { id: 'tr2', tipo: EVENTO.TRANSFERENCIA, mes: 121, de: 'otica', para: 'travessia', valor: 880000,
-      rotulo: 'Venda da ótica — a parte que banca a travessia' },
+    { id: 'tr2', tipo: EVENTO.TRANSFERENCIA, mes: 121, de: 'otica', para: 'travessia', valor: TRAVESSIA.valor,
+      rotulo: 'Venda da ótica — a parte que banca a travessia',
+      porque: `Calculado pela ponta certa: é exatamente o que paga R$ ${TRAVESSIA.custoMensal.toLocaleString('pt-BR')}/mês durante os ${TRAVESSIA.meses} meses da travessia, a ${(TRAVESSIA.taxa * 100).toLocaleString('pt-BR')}% ao ano.` },
+    { id: 'ir1', tipo: EVENTO.SAQUE_PONTUAL, mes: 121, caixinha: 'otica', valor: 0, lacuna: true,
+      rotulo: 'Imposto sobre o ganho de capital na venda da ótica',
+      porque: 'Alíquota e custo de aquisição são ⚠ LACUNA do tributarista. Enquanto não vierem, o valor que aterrissa no financeiro está superestimado.' },
     { id: 'tr3', tipo: EVENTO.TRANSFERENCIA, mes: 121, de: 'otica', para: 'liberdade', esvazia: true,
       rotulo: 'Venda da ótica — o restante vai para a liberdade' },
     { id: 'cs1', tipo: EVENTO.CONSUMO, mes: 121, mesFim: 180, caixinha: 'travessia',

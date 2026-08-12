@@ -29,11 +29,30 @@ function dividirJanelas(janelas, corte, campoDe = 'de', campoAte = 'ate') {
 }
 
 export function aplicarSimulacao(base, sim) {
-  const mexeu = sim && (sim.aporte != null || sim.venda != null || (sim.extras?.length > 0));
+  const mexeu = sim && (sim.aporte != null || sim.venda != null || sim.estresse > 0 || (sim.extras?.length > 0));
   if (!mexeu) return base;
 
   let { caixinhas, orcamento, eventos } = base;
   eventos = [...eventos];
+
+  // ── Alavanca 0: teste de estresse — e se render MENOS ─────────────────────
+  //
+  // Arbitragem entre dois pareceres do painel que se contradiziam. O cliente
+  // exigiu poder mexer na taxa ("não assino uma projeção de 46 anos sem 'e se
+  // render menos'"). O CFP proibiu a taxa como alavanca de simulador, com uma
+  // razão fiduciária boa: vira máquina de comprar rentabilidade — o cliente
+  // sobe o número até o plano fechar.
+  //
+  // Os dois estão certos sobre coisas diferentes, e a alavanca de mão única
+  // atende os dois: dá para testar a premissa para baixo, nunca para cima.
+  // Prudência é simulável; otimismo não é.
+  if (sim.estresse > 0) {
+    const corte = Math.abs(sim.estresse);
+    caixinhas = caixinhas.map((c) => ({ ...c, taxaAnual: Math.max(0, c.taxaAnual - corte), estressada: true }));
+    eventos = eventos.map((e) => (e.tipo === EVENTO.MUDANCA_TAXA
+      ? { ...e, taxaAnual: Math.max(0, e.taxaAnual - corte), simulado: true }
+      : e));
+  }
 
   // ── Alavanca 1: por quanto a ótica é vendida ──────────────────────────────
   // Não mexe no valor de HOJE (que é o declarado); registra uma reavaliação no

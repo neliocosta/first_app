@@ -125,6 +125,19 @@ export function pmtConsumoImediato(pv, i, n) {
   return pmtConsumo(pv, i, n) / (1 + i);
 }
 
+/**
+ * A pergunta inversa — a que o planejador faz todo dia: "preciso de R$ X por mês
+ * durante N meses; quanto preciso ter?". Sem ela, o consultor chuta o tamanho da
+ * caixinha e o excedente vaza silenciosamente pela banda de tolerância.
+ * Espelha `pmtConsumoImediato`: o primeiro saque sai no mesmo mês em que o
+ * dinheiro chega, então é anuidade antecipada.
+ */
+export function pvNecessario(pmt, i, n) {
+  if (n <= 0) return 0;
+  if (Math.abs(i) < 1e-12) return pmt * n;
+  return pmt * ((1 - Math.pow(1 + i, -n)) / i) * (1 + i);
+}
+
 const ativo = (ev, m) => m >= ev.mes && (ev.mesFim == null || m <= ev.mesFim);
 
 /** Receita/despesa vigentes no mês `m`, a partir das janelas de orçamento. */
@@ -145,8 +158,34 @@ function fluxoDoMes(janelas, m) {
  * @param {number} cenario.horizonte  número de meses projetados
  * @param {object} cenario.inicio     { ano, mes } do mês 1
  */
+const alertasDeCarga = [];
+
+/** Estados impossíveis morrem na carga, não silenciosamente no meio da série. */
+function validar(cenario, saida) {
+  saida.length = 0;
+  const ids = new Set(cenario.caixinhas.map((c) => c.id));
+  for (const e of cenario.eventos ?? []) {
+    for (const campo of ['caixinha', 'de', 'para']) {
+      if (e[campo] != null && !ids.has(e[campo])) {
+        saida.push({ nivel: 'erro', texto: `O evento "${e.rotulo}" aponta para a caixinha "${e[campo]}", que não existe.` });
+      }
+    }
+    if (e.mesFim != null && e.mesFim < e.mes) {
+      saida.push({ nivel: 'erro', texto: `O evento "${e.rotulo}" termina (mês ${e.mesFim}) antes de começar (mês ${e.mes}).` });
+    }
+  }
+  const js = [...(cenario.orcamento ?? [])].sort((a, b) => a.de - b.de);
+  for (let k = 1; k < js.length; k++) {
+    const anterior = js[k - 1];
+    if ((anterior.ate ?? Infinity) >= js[k].de) {
+      saida.push({ nivel: 'atencao', texto: `As janelas de orçamento "${anterior.rotulo}" e "${js[k].rotulo}" se sobrepõem. Vale a primeira.` });
+    }
+  }
+}
+
 export function projetar(cenario) {
   const { caixinhas, eventos = [], orcamento = [], horizonte, inicio } = cenario;
+  validar(cenario, alertasDeCarga);
 
   const saldo = {};
   const taxa = {};
@@ -155,7 +194,7 @@ export function projetar(cenario) {
   // Consumos em curso: guardam o PMT vigente para poder refazê-lo se a taxa da
   // caixinha mudar no meio da janela (senão o saldo não zera no fim).
   const consumos = {};
-  const alertas = [];
+  const alertas = [...alertasDeCarga];
   const meses = [];
   let maximo = 0;
 
@@ -202,7 +241,8 @@ export function projetar(cenario) {
 
     // ── 3. Orçamento do mês ──
     const f = fluxoDoMes(orcamento, m);
-    const sobra = f.receita - f.despesa;
+    const despesa = f.componentes ? f.componentes.reduce((s2, c) => s2 + c.valor, 0) : f.despesa;
+    const sobra = f.receita - despesa;
 
     // ── 4. Movimentos, em ordem de prioridade e aplicados no saldo na hora ──
     const aportes = {};
@@ -245,6 +285,13 @@ export function projetar(cenario) {
 
         case EVENTO.SAQUE_PONTUAL: {
           if (e.mes !== m) break;
+          if (e.lacuna) {
+            // O evento existe e é visível, mas o valor ainda não foi apurado.
+            // Movimenta zero e diz por quê — não some da linha do tempo.
+            linha.eventos.push({ ...e, meta, valorNoMes: null, lacuna: true });
+            linha.alertas.push({ nivel: 'atencao', texto: `${e.rotulo}: valor ainda não calculado. O número desta projeção está otimista pelo tamanho desse imposto.` });
+            break;
+          }
           const pedido = e.esvazia ? disponivel(e.caixinha) : e.valor;
           const v = Math.min(pedido, disponivel(e.caixinha));
           if (v < pedido - 0.01) {
@@ -331,6 +378,9 @@ export function projetar(cenario) {
 
     // ── 6. Fecha o mês ──
     for (const c of caixinhas) {
+      if (saldo[c.id] < -0.01) {
+        linha.alertas.push({ nivel: 'erro', texto: `A caixinha "${c.nome}" ficou negativa em ${brl(-saldo[c.id])} e foi zerada. Isso é um furo do plano, não um arredondamento.` });
+      }
       if (saldo[c.id] < 0) saldo[c.id] = 0;
       linha.caixinhas[c.id] = {
         abertura: abertura[c.id],
@@ -343,11 +393,12 @@ export function projetar(cenario) {
       linha.camadas[c.camada] += saldo[c.id];
     }
 
+    linha.quebrou = linha.alertas.some((a) => a.nivel === 'erro');
     linha.total = linha.camadas.financeiro + linha.camadas.bens + linha.camadas.participacoes;
     linha.fluxo = {
-      receita: f.receita, despesa: f.despesa, sobra,
+      receita: f.receita, despesa, sobra, componentes: f.componentes,
       entra: entraDoFluxo, sai: saiDoFluxo, descasamento,
-      rotulo: f.rotulo, semOrcamento: !f.achou,
+      rotulo: f.rotulo, semOrcamento: !f.achou, lacunas: f.lacunas,
     };
     if (linha.total > maximo) maximo = linha.total;
     meses.push(linha);
@@ -356,7 +407,8 @@ export function projetar(cenario) {
   // ── Coerência declarada: janela "só rendendo" que na verdade tem movimento ──
   for (const janela of eventos.filter((e) => e.tipo === EVENTO.RENTABILIDADE)) {
     const conflito = eventos.find((e) =>
-      [EVENTO.APORTE_CONTINUO, EVENTO.APORTE_PONTUAL, EVENTO.SAQUE_CONTINUO, EVENTO.SAQUE_PONTUAL].includes(e.tipo) &&
+      [EVENTO.APORTE_CONTINUO, EVENTO.APORTE_PONTUAL, EVENTO.SAQUE_CONTINUO, EVENTO.SAQUE_PONTUAL,
+       EVENTO.CONSUMO, EVENTO.PERPETUIDADE].includes(e.tipo) &&
       (janela.caixinha == null || e.caixinha === janela.caixinha) && // janela sem caixinha = carteira toda
       e.mes <= (janela.mesFim ?? Infinity) && (e.mesFim ?? e.mes) >= janela.mes);
     if (conflito) {

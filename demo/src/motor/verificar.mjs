@@ -6,8 +6,8 @@
  * conta mês a mês para o consultor auditar, e falha ruidosamente se um
  * invariante quebrar.
  */
-import { projetar, brl, pmtConsumo, taxaMensal } from './projecao.js';
-import { ESPECIFICACAO_CENARIO, RICARDO_CENARIO } from './cenarios.js';
+import { projetar, brl, pmtConsumo, taxaMensal, pvNecessario } from './projecao.js';
+import { ESPECIFICACAO_CENARIO, RICARDO_CENARIO, TRAVESSIA } from './cenarios.js';
 
 let falhas = 0;
 const ok = (cond, msg) => {
@@ -76,6 +76,24 @@ ok(perto(rm(1).caixinhas.reserva.abertura + rm(1).caixinhas.formacao.abertura +
 console.log(`  patrimônio total hoje: ${brl(rm(1).total)}`);
 ok(perto(rm(1).total, 4810000, 40000), 'total bate com os R$ 4,81 milhões da devolutiva');
 
+console.log('\n── Coerência com o que o cliente DECLAROU no exame ──');
+// Este é o teste que faltava: a contradição que o painel pegou vivia entre um
+// número do orçamento e uma nota de caixinha, e nada checava os dois juntos.
+const DECLARADO = { custoVida: 16000, renda: 38000, reserva: 180000 };
+const todasAsJanelas = RICARDO_CENARIO.orcamento;
+ok(todasAsJanelas.every((j) => j.componentes?.some((c) => c.rotulo === 'Custo de vida' && c.valor === DECLARADO.custoVida)),
+   `toda janela de orçamento usa o custo de vida DECLARADO (${brl(DECLARADO.custoVida)}), nunca um número inventado`);
+ok(todasAsJanelas.every((j) => j.componentes && j.componentes.length > 0),
+   'nenhuma janela tem despesa como número opaco — todas declaram a composição');
+const mesesDeReserva = DECLARADO.reserva / DECLARADO.custoVida;
+ok(Math.round(mesesDeReserva) === 11,
+   `a nota da reserva ("11 meses") confere com o custo de vida declarado (${mesesDeReserva.toFixed(1)} meses)`);
+ok(rm(1).fluxo.receita - rm(1).fluxo.despesa === 6000,
+   'hoje a sobra é R$ 6.000 — exatamente o que o Ricardo declarou que poupa');
+const semDestino = RICARDO_CENARIO.orcamento[0].componentes.find((c) => c.rotulo === 'Sem destino declarado');
+ok(semDestino && semDestino.valor === DECLARADO.renda - DECLARADO.custoVida - 6000,
+   `o buraco de ${brl(semDestino.valor)} é derivado dos números dele, não arbitrado`);
+
 console.log('\n── A travessia 2036–2041 ──');
 const travessia = rm(121);
 console.log(`  mês 121 (${travessia.data.rotulo}): venda da ótica`);
@@ -96,12 +114,17 @@ console.log(`  liberdade em 2056 (mês 361): ${brl(rm(361).caixinhas.liberdade.f
 console.log(`  liberdade no fim (mês 552):  ${brl(rm(552).caixinhas.liberdade.fechamento)}`);
 const perp = rm(400).eventos.find((x) => x.tipo === 'perpetuidade');
 console.log(`  no mês 400 a carteira rendeu ${brl(perp.rendeu)} e a vida custou ${brl(perp.precisa)} → saque ${brl(perp.valorNoMes)}`);
-// "Sem mexer no principal" tem dois lados, e os dois precisam valer:
-ok(perp.valorNoMes <= perp.rendeu + 0.01,
-   'o saque de perpetuidade nunca ultrapassa o rendimento do mês');
-const encolheu = r.meses.slice(360).some((l, k, arr) =>
-  k > 0 && l.caixinhas.liberdade.fechamento < arr[k - 1].caixinhas.liberdade.fechamento - 0.01);
-ok(!encolheu, 'durante a perpetuidade o principal nunca encolhe, em nenhum dos 192 meses');
+// As duas asserções anteriores aqui eram tautologias — verdadeiras por
+// construção do Math.min, incapazes de falhar. Estas podem falhar:
+const mesesPerp = r.meses.slice(360);
+const descobertos = mesesPerp.filter((l) => {
+  const x = l.eventos.find((y) => y.tipo === 'perpetuidade');
+  return x && x.precisa > x.rendeu + 0.01;
+});
+ok(descobertos.length === 0,
+   `o rendimento cobriu o custo de vida em todos os ${mesesPerp.length} meses da perpetuidade (${descobertos.length} descobertos)`);
+ok(Math.abs(perp.valorNoMes - perp.precisa) < 0.01,
+   'quando o rendimento sobra, o saque é o custo de vida — não o rendimento inteiro');
 ok(perto(rm(181).caixinhas.liberdade.taxaAnual, 0.055, 1e-9),
    'a mudança de taxa em 2041 baixou a liberdade para 5,5% a.a.');
 
@@ -114,6 +137,50 @@ const atencoes = r.meses.flatMap((l) => l.alertas.filter((a) => a.nivel === 'ate
 console.log(`\n  avisos de atenção: ${atencoes.length}`);
 atencoes.slice(0, 5).forEach((x) => console.log('     ', x));
 if (r.alertas.length) { console.log('\n  alertas globais:'); r.alertas.forEach((a) => console.log('     ', a.texto)); }
+
+console.log('\n── Nenhum real evapora: a conciliação fecha em todo o horizonte ──');
+const evaporado = r.meses.reduce((s2, l) => s2 + Math.abs(l.fluxo.descasamento || 0), 0);
+console.log(`  soma dos descasamentos ao longo dos ${r.meses.length} meses: ${brl(evaporado)}`);
+ok(evaporado < 1, 'nenhum descasamento residual sobrevive à banda de tolerância');
+
+console.log('\n── A travessia é DERIVADA da necessidade, não cravada ──');
+ok(Math.abs(consumo.pmt - 16000) < 1,
+   `o PMT bate exatamente com o custo de vida (${brl(consumo.pmt)}), sem excedente vazando`);
+ok(Math.abs(TRAVESSIA.valor - 873159) < 2,
+   `o tamanho da ponte vem da pergunta inversa: ${brl(TRAVESSIA.valor)}`);
+
+// ─────────────────────────────────────────────────────────────────────────────
+console.log('\n\n═══ MUDANÇA DE TAXA DENTRO DE UMA JANELA DE CONSUMO ═══\n');
+// Este branch (projecao.js, recálculo do PMT) nunca roda no cenário do Ricardo,
+// e é justamente ele que decide se a caixinha zera quando a taxa muda no meio.
+const sintetico = projetar({
+  inicio: { ano: 2026, mes: 1 }, horizonte: 24,
+  caixinhas: [{ id: 'ponte', nome: 'Ponte', camada: 'financeiro', natureza: 'compromisso', saldoInicial: 240000, taxaAnual: 0.06 }],
+  orcamento: [{ de: 1, ate: null, receita: 0, despesa: 0, rotulo: 'teste' }],
+  eventos: [
+    { id: 'c', tipo: 'consumo', mes: 1, mesFim: 24, caixinha: 'ponte', rotulo: 'consumo de 24 meses' },
+    { id: 't', tipo: 'mudancaTaxa', mes: 13, caixinha: 'ponte', taxaAnual: 0.02, rotulo: 'taxa despenca no meio' },
+  ],
+});
+const antes = sintetico.meses[0].eventos.find((x) => x.tipo === 'consumo');
+const depois = sintetico.meses[12].eventos.find((x) => x.tipo === 'consumo');
+console.log(`  parcela antes da mudança: ${brl(antes.pmt)} · depois: ${brl(depois.pmt)}`);
+ok(depois.pmt < antes.pmt, 'a parcela foi refeita para baixo quando a taxa caiu');
+ok(sintetico.meses[12].alertas.some((a) => /refeita/.test(a.texto)), 'o recálculo é anunciado, não silencioso');
+ok(Math.abs(sintetico.meses[23].caixinhas.ponte.fechamento) < 1,
+   `a caixinha ainda zera no último mês apesar da taxa ter mudado no meio (resíduo ${sintetico.meses[23].caixinhas.ponte.fechamento.toFixed(4)})`);
+
+// ─────────────────────────────────────────────────────────────────────────────
+console.log('\n\n═══ ESTADOS IMPOSSÍVEIS ═══\n');
+const quebrado = projetar({
+  inicio: { ano: 2026, mes: 1 }, horizonte: 3,
+  caixinhas: [{ id: 'a', nome: 'A', camada: 'financeiro', natureza: 'reserva', saldoInicial: 1000, taxaAnual: 0 }],
+  orcamento: [{ de: 1, ate: 2, receita: 0, despesa: 0, rotulo: 'x' }, { de: 2, ate: null, receita: 0, despesa: 0, rotulo: 'y' }],
+  eventos: [{ id: 'z', tipo: 'aporteContinuo', mes: 5, mesFim: 2, caixinha: 'inexistente', valor: 1, rotulo: 'evento torto' }],
+});
+ok(quebrado.alertas.some((a) => /não existe/.test(a.texto)), 'evento apontando para caixinha inexistente é denunciado na carga');
+ok(quebrado.alertas.some((a) => /antes de começar/.test(a.texto)), 'evento que termina antes de começar é denunciado');
+ok(quebrado.alertas.some((a) => /sobrepõem/.test(a.texto)), 'janelas de orçamento sobrepostas são denunciadas');
 
 // ─────────────────────────────────────────────────────────────────────────────
 console.log('\n\n═══ FÓRMULAS ISOLADAS ═══\n');
