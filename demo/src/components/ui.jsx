@@ -117,42 +117,92 @@ export function Icone({ nome, size = 24, className = '', strokeWidth = 1.75 }) {
   return <C size={size} className={className} strokeWidth={strokeWidth} aria-hidden />;
 }
 
-/* ── Input de moeda com chips (componente prioritário — spec §14) ────────── */
-export function InputMoedaChips({ valor, onChange, chips = [], permiteVaria = true }) {
+/* ── Input de moeda ────────────────────────────────────────────────────────
+ * A5 (Nélio): nenhuma pergunta usa valor pré-determinado. Os chips de atalho
+ * induziam resposta preguiçosa e não realista — foram removidos daqui e do
+ * dado, sem exceção.
+ * A4 (Nélio): quem responde "varia muito" precisa dizer DE QUANTO ATÉ QUANTO.
+ * O valor vira { min, max } em vez da string 'varia', que não informava nada. */
+export function InputMoedaChips({ valor, onChange, permiteVaria = true }) {
   // Rodada 4 (engenheiro): estado derivado do valor — antes um useState interno vazava
   // entre perguntas e renderizava NaN ao voltar.
-  const varia = valor === 'varia';
+  const varia = valor !== null && typeof valor === 'object';
   const numerico = typeof valor === 'number' ? valor : null;
-  const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  const soDigitos = (t) => Number(String(t).replace(/\D/g, '')) || 0;
+  const ptBR = (n) => (n ? n.toLocaleString('pt-BR') : '');
+
+  const campo =
+    'w-full pl-12 pr-4 py-3.5 rounded-input border border-ink-line bg-white font-ui text-lg ' +
+    'text-navy-900 outline-none focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500';
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-ui text-ink-body">R$</span>
-        <input
-          inputMode="numeric" disabled={varia}
-          value={numerico === null ? '' : numerico.toLocaleString('pt-BR')}
-          onChange={(e) => onChange(Number(e.target.value.replace(/\D/g, '')) || 0)}
-          placeholder="0"
-          className="w-full pl-12 pr-4 py-3.5 rounded-input border border-ink-line bg-white font-ui text-lg text-navy-900 outline-none focus:border-orange-500 disabled:opacity-50"
-        />
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {chips.map((c) => (
-          <button key={c} type="button" onClick={() => onChange(c)}
-            className={`px-4 py-2.5 rounded-full font-ui text-sm border transition-colors min-h-[44px]
-              ${numerico === c ? 'bg-orange-700 text-white border-orange-700' : 'bg-white text-navy-900 border-ink-line hover:border-orange-500'}`}>
-            {fmt(c)}
-          </button>
-        ))}
-        {permiteVaria && (
-          <button type="button" onClick={() => onChange(varia ? null : 'varia')}
-            className={`px-4 py-2.5 rounded-full font-ui text-sm border transition-colors min-h-[44px]
-              ${varia ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-ink-body border-ink-line hover:border-navy-900'}`}>
-            Varia muito
-          </button>
-        )}
-      </div>
+      {varia ? (
+        <div className="space-y-3">
+          {[
+            ['min', 'De, nos meses mais baixos'],
+            ['max', 'Até, nos meses mais altos'],
+          ].map(([campoNome, rotulo]) => (
+            <label key={campoNome} className="block">
+              <span className="font-ui text-sm text-ink-body mb-1.5 block">{rotulo}</span>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-ui text-ink-body">R$</span>
+                <input
+                  inputMode="numeric" value={ptBR(valor[campoNome])}
+                  onChange={(e) => onChange({ ...valor, [campoNome]: soDigitos(e.target.value) })}
+                  placeholder="0" className={campo}
+                />
+              </div>
+            </label>
+          ))}
+        </div>
+      ) : (
+        <div className="relative">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-ui text-ink-body">R$</span>
+          <input
+            inputMode="numeric"
+            value={numerico === null ? '' : numerico.toLocaleString('pt-BR')}
+            onChange={(e) => onChange(soDigitos(e.target.value))}
+            placeholder="0" className={campo}
+          />
+        </div>
+      )}
+
+      {permiteVaria && (
+        <button type="button" onClick={() => onChange(varia ? null : { min: 0, max: 0 })}
+          className={`px-4 py-2.5 rounded-full font-ui text-sm border transition-colors min-h-[44px]
+            ${varia ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-ink-body border-ink-line hover:border-navy-900'}`}>
+          {varia ? 'Informar um valor único' : 'Varia muito'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ── Idade ────────────────────────────────────────────────────────────────
+ * A9 (Nélio): era <input type="number"> e a roda do mouse alterava o valor
+ * imputado sem o cliente perceber. Agora o número não é editável pela roda —
+ * os botões − e + são o único caminho, mais digitação direta. */
+export function InputIdade({ valor, onChange, min = 0, max = 120 }) {
+  const n = Number(valor) || 0;
+  const passo = (d) => onChange(String(Math.min(max, Math.max(min, n + d))));
+  const botao =
+    'w-12 h-12 shrink-0 rounded-input border border-ink-line bg-white text-navy-900 ' +
+    'font-ui text-xl leading-none outline-none hover:border-orange-500 ' +
+    'focus-visible:ring-2 focus-visible:ring-orange-500 disabled:opacity-40';
+
+  return (
+    <div className="flex items-center gap-3">
+      <input
+        inputMode="numeric" value={valor || ''}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 3))}
+        onWheel={(e) => e.currentTarget.blur()}
+        placeholder="0"
+        className="flex-1 min-w-0 px-4 py-3.5 rounded-input border border-ink-line bg-white font-ui text-lg text-navy-900 outline-none focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500"
+      />
+      <span className="font-ui text-sm text-ink-body shrink-0">anos</span>
+      <button type="button" onClick={() => passo(-1)} disabled={n <= min} className={botao} aria-label="Diminuir um ano">−</button>
+      <button type="button" onClick={() => passo(1)} disabled={n >= max} className={botao} aria-label="Aumentar um ano">+</button>
     </div>
   );
 }
@@ -193,9 +243,13 @@ export function ScoreAnimado({ valor, size = 120 }) {
 }
 
 /* ── Selo "dados de demonstração" ────────────────────────────────────────── */
-export function SeloDemo({ className = '' }) {
+/** `claro` = sobre fundo claro. Sem ele o selo era branco sobre creme, e sumia. */
+export function SeloDemo({ className = '', claro = false }) {
+  const tema = claro
+    ? 'bg-cream-100 border-ink-line text-ink-body'
+    : 'bg-white/10 border-white/15 text-white/70';
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 font-ui text-[11px] ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-ui text-[11px] ${tema} ${className}`}>
       <Icone nome="info" size={12} /> dados de demonstração
     </span>
   );

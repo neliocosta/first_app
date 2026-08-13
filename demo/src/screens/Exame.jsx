@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { PERGUNTAS, TIPOS } from '../data/exame.js';
 import { RICARDO } from '../data/demo.js';
-import { Marca, Button, Icone, InputMoedaChips, BarraProgresso } from '../components/ui.jsx';
+import { Marca, Button, Icone, InputMoedaChips, InputIdade, BarraProgresso } from '../components/ui.jsx';
 
 /** Avalia se uma pergunta é visível dadas as respostas (as 6 condicionais). */
 function visivel(p, resp) {
@@ -70,10 +70,19 @@ export default function Exame({ estado, acoes }) {
     }
   };
 
-  const voltar = () => { setRascunho(null); if (idx > 0) acoes.responderExame({ indiceExame: idx - 1 }); };
+  // A1: na primeira pergunta, voltar devolve à trilha. Sem isto o exame continua
+  // sendo uma sala sem porta — que foi a queixa original.
+  const voltar = () => {
+    setRascunho(null);
+    if (idx > 0) acoes.responderExame({ indiceExame: idx - 1 });
+    else acoes.voltarAtrilha();
+  };
 
+  // A4: a faixa só está respondida quando as duas pontas existem e fazem sentido.
+  const faixa = valorAtual !== null && typeof valorAtual === 'object' && !Array.isArray(valorAtual);
   const podeAvancar = valorAtual !== undefined && valorAtual !== null && valorAtual !== '' &&
-    !(Array.isArray(valorAtual) && valorAtual.length === 0);
+    !(Array.isArray(valorAtual) && valorAtual.length === 0) &&
+    !(faixa && !(valorAtual.min > 0 && valorAtual.max >= valorAtual.min));
 
   const toggleMulti = (o) => {
     const atual = Array.isArray(valorAtual) ? valorAtual : [];
@@ -172,13 +181,18 @@ export default function Exame({ estado, acoes }) {
           )}
 
           {p.tipo === TIPOS.MOEDA && (
-            <InputMoedaChips key={p.id} valor={valorAtual} chips={p.chips} permiteVaria={p.permiteVaria}
+            <InputMoedaChips key={p.id} valor={valorAtual} permiteVaria={p.permiteVaria}
               onChange={(v) => setRascunho(v)} />
           )}
 
-          {(p.tipo === TIPOS.IDADE || p.tipo === TIPOS.DATA || p.tipo === TIPOS.EMAIL) && (
+          {/* A9: idade tem os seus próprios controles — a roda do mouse não a altera. */}
+          {p.tipo === TIPOS.IDADE && (
+            <InputIdade key={p.id} valor={valorAtual} onChange={(v) => setRascunho(v)} />
+          )}
+
+          {(p.tipo === TIPOS.DATA || p.tipo === TIPOS.EMAIL) && (
             <input key={p.id}
-              type={p.tipo === TIPOS.DATA ? 'date' : p.tipo === TIPOS.EMAIL ? 'email' : 'number'}
+              type={p.tipo === TIPOS.DATA ? 'date' : 'email'}
               value={valorAtual || ''} onChange={(e) => setRascunho(e.target.value)}
               placeholder={p.tipo === TIPOS.EMAIL ? 'voce@exemplo.com' : ''}
               className="w-full px-4 py-3.5 rounded-input border border-ink-line bg-white font-ui text-lg text-navy-900 outline-none focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500"
@@ -189,7 +203,7 @@ export default function Exame({ estado, acoes }) {
 
       <footer className="sticky bottom-0 bg-cream-50/95 backdrop-blur border-t border-ink-line px-5 py-4">
         <div className="max-w-xl mx-auto flex items-center gap-3">
-          <Button variant="secondary" size="sm" onClick={voltar} disabled={idx === 0}
+          <Button variant="secondary" size="sm" onClick={voltar}
             icon={<Icone nome="chevron-left" size={16} />}>Voltar</Button>
           <div className="flex-1" />
           {precisaBotao && <Button onClick={() => responder(valorAtual)} disabled={!podeAvancar}>Continuar</Button>}

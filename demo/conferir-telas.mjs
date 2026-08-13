@@ -19,6 +19,16 @@ const problemas = [];
 pagina.on('console', (m) => m.type() === 'error' && problemas.push(m.text()));
 pagina.on('pageerror', (e) => problemas.push(`PAGEERROR: ${e.message}`));
 
+// Permite abrir direto numa fase adiante, sem responder 24 perguntas à mão.
+if (process.env.FASE) {
+  await pagina.addInitScript((fase) => {
+    localStorage.setItem(
+      'nl:v1:cliente:ricardo:estado',
+      JSON.stringify({ fase, score: 42, schemaVersao: 2, clienteAtivoId: 'ricardo', atorAtivo: 'cliente' }),
+    );
+  }, process.env.FASE);
+}
+
 await pagina.goto(ALVO, { waitUntil: 'networkidle' });
 await pagina.waitForTimeout(600);
 

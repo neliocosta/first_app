@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEstado } from './store.js';
 import { Marca, Icone, SeloDemo } from './components/ui.jsx';
+import Trilha from './screens/Trilha.jsx';
 import Exame from './screens/Exame.jsx';
 import Resultado from './screens/Resultado.jsx';
 import Devolutiva from './screens/cliente/Devolutiva.jsx';
@@ -36,7 +37,7 @@ function BarraDemo({ estado, trocarAtor, reiniciar, pularParaDevolutiva }) {
           ))}
         </div>
         <div className="flex-1" />
-        {estado.atorAtivo === 'cliente' && estado.fase === 'exame' && (
+        {estado.atorAtivo === 'cliente' && ['trilha', 'exame'].includes(estado.fase) && (
           <button onClick={pularParaDevolutiva} className="hover:text-white transition-colors underline underline-offset-2 min-h-[44px] px-1">
             pular o exame
           </button>
@@ -98,6 +99,9 @@ export default function App() {
     return <>{barra}<Consultor estado={estado} acoes={acoesConsultor} />{aviso}</>;
   }
 
+  if (estado.fase === 'trilha') {
+    return <>{barra}<Trilha estado={estado} acoes={acoesCliente} />{aviso}</>;
+  }
   if (estado.fase === 'exame') {
     return <>{barra}<Exame estado={estado} acoes={acoesCliente} />{aviso}</>;
   }

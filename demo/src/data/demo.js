@@ -28,6 +28,20 @@ export const RICARDO = {
   estadoCivil: 'Casado(a)',
   dependentes: 2,
   score: 42,
+  /**
+   * A11: gradação por pilar. ⚠ LACUNA — a fórmula oficial de pontuação dos
+   * cinco pilares nunca foi passada, então estes são valores de demonstração,
+   * coerentes com a persona: patrimônio real construído, proteção e consciência
+   * atrasadas (que é justamente o que o traz à Nord). A média dos cinco dá os
+   * 42 do score geral; a ponderação real é decisão de metodologia.
+   */
+  pilares: [
+    { nome: 'Patrimônio',  valor: 68 },
+    { nome: 'Poupança',    valor: 55 },
+    { nome: 'Proteção',    valor: 22 },
+    { nome: 'Consciência', valor: 30 },
+    { nome: 'Atitude',     valor: 35 },
+  ],
   coleta: {
     rendaLiquida:        { valor: 38000,   prov: 'declarado', rotulo: 'Renda líquida mensal' },
     custoVida:           { valor: 16000,   prov: 'declarado', rotulo: 'Custo de vida mensal' },

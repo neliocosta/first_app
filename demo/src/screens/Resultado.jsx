@@ -1,6 +1,6 @@
 import React from 'react';
-import { FAIXAS } from '../data/exame.js';
-import { CONSULTOR } from '../data/demo.js';
+import { FAIXAS, faixaDe, DESCRICAO_PILAR } from '../data/exame.js';
+import { CONSULTOR, RICARDO } from '../data/demo.js';
 import { Marca, Button, Icone, ScoreAnimado, SeloDemo } from '../components/ui.jsx';
 
 export default function Resultado({ estado, acoes }) {
@@ -11,7 +11,8 @@ export default function Resultado({ estado, acoes }) {
     return () => clearTimeout(t);
   }, []);
   const score = estado.score ?? 0;
-  const faixa = FAIXAS.find((f) => score >= f.min && score < f.max) || FAIXAS[FAIXAS.length - 1];
+  const faixa = faixaDe(score);
+  const pilares = RICARDO.pilares ?? [];
 
   return (
     <div className="min-h-screen bg-navy-950 pt-11">
@@ -32,9 +33,52 @@ export default function Resultado({ estado, acoes }) {
               <div className="h-full rounded-full transition-[width] duration-1000"
                 style={{ width: `${score}%`, background: faixa.cor }} />
             </div>
+            <p className="font-display font-semibold text-xl mb-2" style={{ color: faixa.cor }}>{faixa.rotulo}</p>
             <p className={`font-display text-white text-lg leading-snug transition-opacity duration-500 ${revelado ? 'opacity-100' : 'opacity-0'}`}>{faixa.texto}</p>
           </div>
         </div>
+
+        {/* A11: cada pilar com a sua gradação e a descrição do que ele mede. */}
+        <section className="mb-8">
+          <h2 className="font-display font-semibold text-white text-lg mb-1">Onde você está em cada frente</h2>
+          <p className="font-ui text-sm text-white/50 mb-5">
+            Cinco frentes compõem o resultado. Elas descrevem a situação, não você.
+          </p>
+
+          <ul className="space-y-3">
+            {pilares.map((p, i) => {
+              const f = faixaDe(p.valor);
+              return (
+                <li key={p.nome}
+                  className="rounded-card bg-white/[0.06] border border-white/10 p-4 transition-opacity duration-500"
+                  style={{ opacity: revelado ? 1 : 0, transitionDelay: `${i * 90}ms` }}>
+                  <div className="flex items-baseline justify-between gap-3 mb-2">
+                    <span className="font-display font-semibold text-white">{p.nome}</span>
+                    <span className="font-ui text-sm shrink-0" style={{ color: f.cor }}>
+                      <strong className="font-semibold tabular-nums">{p.valor}</strong>
+                      <span className="text-white/40"> / 100 · </span>{f.rotulo}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/10 overflow-hidden mb-2.5">
+                    <div className="h-full rounded-full transition-[width] duration-700 ease-out"
+                      style={{ width: revelado ? `${p.valor}%` : '0%', background: f.cor }} />
+                  </div>
+                  <p className="font-body text-sm text-white/60 leading-relaxed">{DESCRICAO_PILAR[p.nome]}</p>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* A escala inteira à vista: sem ela, um número solto não se interpreta. */}
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            {FAIXAS.map((f) => (
+              <span key={f.rotulo} className="inline-flex items-center gap-1.5 font-ui text-xs text-white/50">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: f.cor }} />
+                {f.rotulo}
+              </span>
+            ))}
+          </div>
+        </section>
 
         {/* Honestidade sobre a LACUNA da fórmula (spec §4.1) */}
         <div className="rounded-card bg-white/[0.06] border border-white/10 p-5 mb-6">

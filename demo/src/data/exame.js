@@ -40,7 +40,7 @@ export const PERGUNTAS = [
     id: 'q02', pilar: PILARES.POUPANCA, tipo: TIPOS.MOEDA,
     texto: 'E quanto, em média, você poupa por mês?',
     ajuda: 'A soma total do que você guarda ou investe, independente do objetivo.',
-    chips: [500, 1000, 2500, 5000, 10000], permiteVaria: true,
+    permiteVaria: true,
   },
   {
     id: 'q03', pilar: PILARES.ATITUDE, tipo: TIPOS.OPCAO,
@@ -67,13 +67,13 @@ export const PERGUNTAS = [
   {
     id: 'q07', pilar: PILARES.POUPANCA, tipo: TIPOS.MOEDA,
     texto: 'Qual valor você imagina que precisa investir por mês para realizar seu(s) objetivo(s)?',
-    chips: [1000, 2500, 5000, 10000, 20000], permiteVaria: true,
+    permiteVaria: true,
     condicao: { campo: 'q04', igual: 'Sim' },
   },
   {
     id: 'q08', pilar: PILARES.POUPANCA, tipo: TIPOS.MOEDA,
     texto: 'E quanto, de fato, do valor anterior você está investindo mensalmente para isso?',
-    chips: [0, 1000, 2500, 5000, 10000], permiteVaria: true,
+    permiteVaria: true,
     condicao: { campo: 'q04', igual: 'Sim' },
   },
   // ──────────────────────────────────────────────────────────────────────────
@@ -81,12 +81,12 @@ export const PERGUNTAS = [
     id: 'q09', pilar: PILARES.PATRIMONIO, tipo: TIPOS.MOEDA,
     texto: 'Quanto aproximadamente você tem de ativos financeiros?',
     ajuda: 'Considere investimentos, poupança e conta corrente. Não considere bens como imóveis e automóveis.',
-    chips: [50000, 100000, 250000, 500000, 1000000], permiteVaria: true,
+    permiteVaria: true,
   },
   {
     id: 'q10', pilar: PILARES.POUPANCA, tipo: TIPOS.MOEDA,
     texto: 'Quanto desse valor pode ser considerado uma reserva de emergência?',
-    chips: [0, 10000, 30000, 60000, 100000], permiteVaria: true,
+    permiteVaria: true,
   },
   {
     id: 'q11', pilar: PILARES.ATITUDE, tipo: TIPOS.SIM_NAO,
@@ -95,7 +95,7 @@ export const PERGUNTAS = [
   {
     id: 'q12', pilar: PILARES.CONSCIENCIA, tipo: TIPOS.MOEDA,
     texto: 'Quanto você imagina que, para o seu perfil, seria um valor adequado de reserva de emergência?',
-    chips: [30000, 60000, 100000, 150000], permiteVaria: true,
+    permiteVaria: true,
   },
   {
     id: 'q13', pilar: PILARES.PATRIMONIO, tipo: TIPOS.MULTI, chave: 'bens',
@@ -119,7 +119,7 @@ export const PERGUNTAS = [
     id: 'q15', pilar: PILARES.PATRIMONIO, tipo: TIPOS.MOEDA,
     texto: 'Quanto aproximadamente, em reais, você considera que seus bens valem?',
     ajuda: 'Se possuir bens financiados, coloque o valor total do bem, desconsiderando o saldo em aberto.',
-    chips: [100000, 300000, 600000, 1000000, 2000000], permiteVaria: true,
+    permiteVaria: true,
     condicao: { campo: 'q13', diferenteDe: 'Nenhum' },
   },
   {
@@ -137,7 +137,7 @@ export const PERGUNTAS = [
     id: 'q18', pilar: PILARES.PATRIMONIO, tipo: TIPOS.MOEDA,
     texto: 'Se fosse quitar todas as suas dívidas e financiamentos hoje, de quanto você precisaria?',
     ajuda: 'Ou seja: o saldo devedor atual dos seus empréstimos e financiamentos.',
-    chips: [10000, 50000, 100000, 300000], permiteVaria: true,
+    permiteVaria: true,
     condicao: { campo: 'q17', igual: 'Sim' },
   },
   {
@@ -184,7 +184,7 @@ export const PERGUNTAS = [
   {
     id: 'q25', pilar: PILARES.PATRIMONIO, tipo: TIPOS.MOEDA,
     texto: 'Hoje, quanto é a sua renda líquida mensal?',
-    chips: [5000, 10000, 20000, 40000, 60000], permiteVaria: true,
+    permiteVaria: true,
   },
   {
     id: 'q26', pilar: PILARES.PROTECAO, tipo: TIPOS.SIM_NAO,
@@ -200,7 +200,7 @@ export const PERGUNTAS = [
     id: 'q28', pilar: PILARES.CONSCIENCIA, tipo: TIPOS.MOEDA,
     texto: 'Na média, quanto é o seu custo de vida?',
     ajuda: 'Se divide os custos mensais com outra pessoa, coloque apenas o valor que é sua responsabilidade.',
-    chips: [3000, 6000, 10000, 16000, 25000], permiteVaria: true,
+    permiteVaria: true,
   },
   {
     id: 'q29', pilar: PILARES.CONSCIENCIA, tipo: TIPOS.SIM_NAO,
@@ -241,10 +241,35 @@ export const CONDICIONAIS = [
 ];
 
 /** Faixas de resultado — copy da spec §11.1 (descreve a situação, nunca a pessoa). */
+/**
+ * Escala oficial de gradação (A11, decisão do Nélio). Cinco faixas, com os
+ * rótulos dele. O azul claro no meio de uma rampa vermelho→verde quebra a rampa
+ * de matiz de propósito — é o padrão que a Nord já usa, e vale mais que a
+ * coerência cromática.
+ *
+ * `rotulo` descreve a SITUAÇÃO, nunca a pessoa (inviolável do contexto §9).
+ * ⚠ LACUNA: os tokens exatos de cor da Nord não foram passados; os hex abaixo
+ * são a leitura mais próxima dos nomes que ele deu e precisam de confirmação.
+ */
 export const FAIXAS = [
-  { min: 0,  max: 20,  token: 'low',    cor: '#D64545', texto: 'Sua saúde financeira está no começo — há bases importantes a montar.' },
-  { min: 20, max: 40,  token: 'low',    cor: '#E07A3F', texto: 'As bases já saíram do papel — ainda faltam fundamentos importantes.' },
-  { min: 40, max: 60,  token: 'medium', cor: '#FA7A35', texto: 'Fundamentos em pé — dá para avançar com passos regulares.' },
-  { min: 60, max: 80,  token: 'good',   cor: '#4FA97B', texto: 'Boa estrutura — agora é refinar e proteger o que você construiu.' },
-  { min: 80, max: 100, token: 'good',   cor: '#2E9E5B', texto: 'Sua saúde financeira está sólida — foco em manter o que construiu e cuidar de quem vem depois.' },
+  { min: 0,  max: 20,  rotulo: 'Preocupante', cor: '#D64545', texto: 'Sua saúde financeira está no começo — há bases importantes a montar.' },
+  { min: 20, max: 40,  rotulo: 'Ruim',        cor: '#C2571E', texto: 'As bases já saíram do papel — ainda faltam fundamentos importantes.' },
+  { min: 40, max: 60,  rotulo: 'Regular',     cor: '#5B9BD5', texto: 'Fundamentos em pé — dá para avançar com passos regulares.' },
+  { min: 60, max: 80,  rotulo: 'Bom',         cor: '#4FA97B', texto: 'Boa estrutura — agora é refinar e proteger o que você construiu.' },
+  { min: 80, max: 100, rotulo: 'Ótimo',       cor: '#2E9E5B', texto: 'Sua saúde financeira está sólida — foco em manter o que construiu e cuidar de quem vem depois.' },
 ];
+
+export const faixaDe = (n) => FAIXAS.find((f) => n >= f.min && n < f.max) || FAIXAS[FAIXAS.length - 1];
+
+/**
+ * O que cada pilar mede — a "descrição da situação" que o A11 pede ao lado da
+ * gradação. Texto do pilar, não do cliente: explica a régua, não julga quem foi
+ * medido.
+ */
+export const DESCRICAO_PILAR = {
+  [PILARES.PATRIMONIO]:  'O que você já construiu: bens, investimentos e participações.',
+  [PILARES.POUPANCA]:    'Quanto do que entra você consegue guardar, e com que regularidade.',
+  [PILARES.PROTECAO]:    'O que aconteceria com a sua família se a renda parasse amanhã.',
+  [PILARES.CONSCIENCIA]: 'O quanto você sabe para onde o seu dinheiro está indo e por quê.',
+  [PILARES.ATITUDE]:     'O que você já colocou em prática, não o que pretende fazer.',
+};

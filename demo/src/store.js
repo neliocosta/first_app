@@ -18,7 +18,9 @@ const seed = (clienteAtivoId = 'ricardo') => ({
   // Fases (spec §2.2). 'montagem' é a etapa em que o consultor desenha o plano a partir
   // da coleta — é ali que entram os insumos que ele levanta (ex.: alíquota de ITCMD do
   // estado do cliente), e não na reunião com o cliente.
-  fase: 'exame',
+  // A1 (Nélio): a porta é a trilha, não o exame. O cliente precisa ver onde
+  // está e qual é a próxima ação ANTES de ser posto a responder 24 perguntas.
+  fase: 'trilha',
   telaCliente: 'inicio',
 
   respostas: {},
@@ -95,6 +97,8 @@ export function useEstado() {
    */
   const acoesCliente = useMemo(() => ({
     navegar: (telaCliente) => aplicar({ telaCliente }),
+    comecarExame: () => aplicar({ fase: 'exame' }),
+    voltarAtrilha: () => aplicar({ fase: 'trilha' }),
     responderExame: (patch) => aplicar(patch),
     avancarDevolutiva: (patch) => aplicar(patch),
     registrarDecisao: (moduloId, decisao) =>

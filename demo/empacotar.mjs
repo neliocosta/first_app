@@ -45,7 +45,11 @@ const arquivos = await readdir(join(DIST, 'assets'));
 const js = await readFile(join(DIST, 'assets', arquivos.find((f) => f.endsWith('.js'))), 'utf8');
 const css = await readFile(join(DIST, 'assets', arquivos.find((f) => f.endsWith('.css'))), 'utf8');
 
-const html = `<title>Nord Liberta</title>
+// O charset vem ANTES de tudo: sem ele o navegador farejador cai em Latin-1 e
+// todo acento vira mojibake — o index.html do Vite declara, o empacotado tem de
+// declarar também.
+const html = `<meta charset="utf-8" />
+<title>Nord Liberta</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <style>
 ${await fontesInline()}
