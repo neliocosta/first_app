@@ -31,7 +31,8 @@ A ferramenta de evolução patrimonial corre em documento próprio, com painel d
 
 - **v4** — `projecao-de-vida-v4.md` — **atual**. Endereça os 28 bloqueantes da rodada 08 e as
   três decisões do lote C (expectativa de vida 95 anos · taxa de referência 4,91% a.a. ·
-  self-service faz a projeção). **Ainda não foi ao painel.**
+  self-service faz a projeção). **Rodada 09: 0/6** — 14 dos 28 bloqueantes fecharam de verdade;
+  o que impede o selo é a v4 se contradizer em pontos verificáveis. Próxima entrada: v5.
 - v3 — `projecao-de-vida-v3.md` — rodada 08: **0/6**, sete convergências independentes.
 - v2 — `projecao-de-vida-v2.md` — rodada 07: **0/6**.
 - `duas-ferramentas.md` — por que Orçamento e Projeção são duas ferramentas que convergem.
@@ -41,3 +42,11 @@ A ferramenta de evolução patrimonial corre em documento próprio, com painel d
 - **Rodada 1** (`../gauntlet/rodada-01.md`) — v0 → v1. 0/5 satisfeito; 19 bloqueantes endereçados.
 - **Rodada 2** (`../gauntlet/rodada-02.md`) — v1 → v2. 1/5 satisfeito (Redator); 6 bloqueantes endereçados.
 - **Rodada 3** (`../gauntlet/rodada-03.md`) — v2 → v3. ✅ **5/5 satisfeito — CONVERGÊNCIA.**
+
+### Trilha da Projeção de Vida (painel de 6)
+
+- **Rodada 7** (`../gauntlet/rodada-07.md`) — a v2 vai ao painel antes do código. **0/6.**
+- **Rodada 8** (`../gauntlet/rodada-08.md`) — v3. **0/6**, sete convergências, 28 bloqueantes.
+- **Rodada 9** (`../gauntlet/rodada-09.md`) — v4. **0/6**, oito convergências. O lote C fechou a
+  amplitude de 2,04× da meta, e a v4 reabriu R$ 1.308.939 por convenções não declaradas.
+  Pré-condição da rodada 10: a varredura de vocabulário do §19.24 rodando no build.
